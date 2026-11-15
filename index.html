@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#08110C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>Windward: pre-round conditions for golfers</title>
+<style>
+:root{
+  --bg:#F3F6F4;--card:#FFFFFF;--ink:#0D1913;--muted:#586A60;--line:#DCE5E0;--acc:#0A8F54;--acc-ink:#FFFFFF;--soft:#E6F2EB;
+  --adv:#8A6A00;--watch:#B85A00;--warn:#B3261E;--info:#33576B;--glow:rgba(10,143,84,.14);
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#08110C;--card:#111D16;--ink:#EAF3EE;--muted:#93A59B;--line:#213027;--acc:#3DDC84;--acc-ink:#05200F;--soft:#16261D;--adv:#F2C14E;--watch:#FFA94D;--warn:#FF7A6E;--info:#8EC3DD;--glow:rgba(61,220,132,.16);color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#08110C;--card:#111D16;--ink:#EAF3EE;--muted:#93A59B;--line:#213027;--acc:#3DDC84;--acc-ink:#05200F;--soft:#16261D;--adv:#F2C14E;--watch:#FFA94D;--warn:#FF7A6E;--info:#8EC3DD;--glow:rgba(61,220,132,.16);color-scheme:dark}
+html{font-size:16px;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;background-image:radial-gradient(900px 340px at 50% -80px,var(--glow),transparent 70%);background-repeat:no-repeat}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em}
+h1{font-size:1.7rem;font-weight:800}h2{font-size:1.15rem;font-weight:750}h3{font-size:1rem;font-weight:700}
+p{margin:0 0 .6em}a{color:var(--acc)}
+.num{font-variant-numeric:tabular-nums}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:20;border-bottom:1px solid var(--line)}
+.hin{max-width:720px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;font-size:.95rem;color:var(--ink);text-decoration:none}
+.logo svg{width:28px;height:28px}
+.iconbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
+.iconbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 14px;box-shadow:0 1px 0 rgba(0,0,0,.02),0 10px 30px -18px rgba(0,0,0,.25)}
+.lbl{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.mut{color:var(--muted)}.small{font-size:.85rem}
+.hero h1{margin:2px 0 14px}
+select,input[type=text],input[type=date],input[type=time],input[type=number]{width:100%;min-height:50px;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 14px;appearance:none;-webkit-appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 22px) 22px,calc(100% - 16px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:40px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--acc);color:var(--acc-ink);border:0;border-radius:999px;padding:12px 20px;min-height:48px;font:700 1rem inherit;font-family:inherit;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{min-height:40px;padding:8px 14px;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px}
+.stat b{display:block;font-size:1.45rem;font-weight:800;letter-spacing:-.03em;margin-top:2px;font-variant-numeric:tabular-nums}
+.stat span{font-size:.78rem;color:var(--muted)}
+.alert{display:flex;gap:12px;border-radius:16px;padding:12px 14px;margin:0 0 10px;background:var(--card);border:1px solid var(--line);border-left-width:6px}
+.alert b{display:block}
+.alert.advisory{border-left-color:var(--adv)}.alert.watch{border-left-color:var(--watch)}.alert.warning{border-left-color:var(--warn)}.alert.info{border-left-color:var(--info)}
+.tag{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.alert.advisory .tag{color:var(--adv)}.alert.watch .tag{color:var(--watch)}.alert.warning .tag{color:var(--warn)}.alert.info .tag{color:var(--info)}
+.mapbox{position:relative;border-radius:20px;overflow:hidden;background:#0b1f15;border:1px solid var(--line)}
+
+.mapro{position:absolute;left:10px;top:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.pillro{background:rgba(6,16,10,.72);color:#EAF3EE;border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:700;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 2px 0;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:4px;margin-right:6px;vertical-align:middle}
+input[type=range]{width:100%;height:36px;accent-color:var(--acc);margin:8px 0 0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
+.tile{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;text-decoration:none;color:var(--ink);min-height:68px}
+.tile svg{width:26px;height:26px;stroke:var(--acc);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tile b{display:block;font-size:1rem}.tile span{font-size:.78rem;color:var(--muted)}
+.sub{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.sub h1{font-size:1.5rem}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:76px;min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:600 .95rem inherit;font-family:inherit;cursor:pointer}
+.seg button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.setrow{padding:12px 0;border-bottom:1px solid var(--line)}.setrow:last-child{border-bottom:0}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:750;font-size:.78rem;margin:2px 6px 2px 0;font-variant-numeric:tabular-nums}
+.c-into{background:#0A6BD0;color:#fff}.c-down{background:#C7F264;color:#10210A}.c-cross{background:#FFB547;color:#2A1A00}.c-calm{background:var(--soft);color:var(--ink)}
+details{border-top:1px solid var(--line)}details:first-of-type{border-top:0}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 0;min-height:56px}
+summary::-webkit-details-marker{display:none}
+.hn{width:42px;height:42px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.hbody{padding:0 0 14px}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:6px 6px;border-bottom:1px solid var(--line)}
+td{padding:10px 6px;border-bottom:1px solid var(--line)}td.n,th.n{text-align:right}
+.chk{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}.chk:last-child{border-bottom:0}
+input[type=checkbox]{width:26px;height:26px;accent-color:var(--acc);flex:none;margin:0}
+.club{padding:8px 0;border-bottom:1px solid var(--line)}
+.club .r1{display:grid;grid-template-columns:28px 1fr 92px;gap:12px;align-items:center}
+.club .r2{display:grid;grid-template-columns:1fr 1.3fr 74px;gap:8px;margin:8px 0 2px 40px}
+.club input,.club select{min-height:42px;font-size:.92rem;padding:6px 10px;border-radius:12px}
+.club select{padding-right:28px;background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px}
+.counter{position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:10;background:var(--acc);color:var(--acc-ink);border-radius:16px;padding:12px 16px;font-weight:800;margin:0 0 14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;font-size:1.5rem;font-weight:850}
+.ring span{width:76px;height:76px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center}
+.idea{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.idea:last-child{border-bottom:0}
+.step{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.step b.t{font-variant-numeric:tabular-nums}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 16px;min-height:44px;font:650 .92rem inherit;font-family:inherit;cursor:pointer}
+.pill.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.results button{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);padding:12px 4px;font:inherit;color:var(--ink);cursor:pointer;min-height:52px}
+.results small{color:var(--muted)}
+.demo{font-size:.78rem;color:var(--muted);margin:16px 2px 0}
+.err{color:var(--warn);font-weight:700;font-size:.9rem}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media print{header,.btn,.counter{display:none}body{background:#fff;color:#000}}
+
+.rowh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+canvas{display:block;width:100%}
+.mapbox.port{max-width:430px;margin:0 auto}
+.mapbox canvas{position:relative}
+.mapbox.rn{background:#10202C}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--soft);color:var(--ink);margin:0 0 10px}
+.rowh .badge{margin:0}.badge.ok{background:var(--acc);color:var(--acc-ink)}
+.rbars{display:flex;gap:4px;margin:12px 0 0;align-items:flex-end}
+.rb{flex:1;text-align:center;font-size:.7rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rb i{display:block;margin:0 auto 4px;width:100%;max-width:26px;background:#4DA3FF;border-radius:6px 6px 2px 2px;min-height:3px}
+.rb.now i{outline:2px solid var(--acc)}
+blockquote{margin:6px 0;padding:0 0 0 12px;border-left:3px solid var(--acc);font-style:italic}
+.brand{border-top:1px solid var(--line);padding:12px 0}
+
+.flick{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.flick .iconbtn{font:700 1.7rem/1 inherit;font-family:inherit;padding:0 0 4px}
+.cpanel{position:absolute;left:8px;top:46px;width:124px;background:rgba(6,16,10,.8);color:#EAF3EE;border-radius:14px;padding:8px 9px 6px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:none;z-index:2;font-variant-numeric:tabular-nums}
+.cpanel .ca{display:flex;gap:2px;min-height:20px;align-items:center}.cpanel .ca svg{width:20px;height:20px;flex:none;fill:#9AA8A0}.cpanel .ca em{font-style:normal;font-size:1.1rem;color:#9AA8A0}
+.cpanel.up .ca svg{fill:#4DA3FF}.cpanel.dn .ca svg{fill:#C7F264}
+.cpanel .ch{font-size:.78rem;font-weight:800;line-height:1.15;margin:2px 0 1px}
+.cpanel .cap{font-size:.62rem;opacity:.75;margin:0 0 4px}
+.cr{display:grid;grid-template-columns:26px 1fr 30px;gap:5px;align-items:center;font-size:.68rem;height:17px}
+.cr b{font-weight:700}.cr i{display:block;height:6px;border-radius:3px;background:#5B6B62}.cr i.l{background:#4DA3FF}.cr i.g{background:#C7F264}.cr span{text-align:right}
+.cpill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;min-height:40px;padding:0 12px;font:700 .76rem inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.cpill.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+textarea{width:100%;min-height:130px;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;resize:vertical}
+.cites{margin-top:12px;border-top:1px solid var(--line)}.cites summary{min-height:44px}.cites ol{padding-left:18px;margin:6px 0 10px;word-break:break-word}.cites li{margin:0 0 6px}
+</style>
+</head>
+<body>
+<header><div class="hin" id="hin"></div></header>
+<main class="wrap" id="app"></main>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI,norm=d=>((d%360)+360)%360,clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const CARD=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const card=d=>CARD[Math.round(norm(d)/22.5)%16];
+const fmtT=h=>{h=((h%24)+24)%24;let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){H=(H+1)%24;M=0}return String(H).padStart(2,"0")+":"+String(M).padStart(2,"0")};
+const parseT=s=>{const p=String(s||"09:00").split(":").map(Number);return (p[0]||0)+(p[1]||0)/60};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const n0=x=>Math.round(x);
+const sg=n=>{const r=Math.round(n);return r>0?"+"+r:r<0?"\u2212"+Math.abs(r):"0"};
+const pad2=n=>String(n).padStart(2,"0");
+/* unit formatters (internal units: mph, deg C, yards, mm) */
+const fW=v=>S.u.w==="mph"?n0(v)+" mph":S.u.w==="kph"?n0(v*1.609)+" km/h":n0(v*0.869)+" kt";
+const fT=c=>S.u.t==="F"?n0(c*9/5+32)+"°F":n0(c)+"°C";
+const fD=y=>S.u.d==="yd"?n0(y)+" yd":n0(y*0.9144)+" m";
+const fR=mm=>S.u.t==="F"?(mm/25.4).toFixed(2)+" in":mm.toFixed(1)+" mm";
+const dispD=y=>S.u.d==="yd"?n0(y):n0(y*0.9144), toYd=v=>S.u.d==="yd"?v:v/0.9144;
+const longDate=s=>{try{const[y,m,d]=s.split("-").map(Number);return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"UTC"}).format(new Date(Date.UTC(y,m-1,d)))}catch(e){return s}};
+const todayPlus=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())};
+function hav(a,b,c,d){const R=6371,dl=rad(c-a),dn=rad(d-b),x=Math.sin(dl/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function hash(s){let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+
+/* ================= data: courses (name, place, region, lat, lon, tz) =================
+   Coordinates are approximate and for demonstration; the production app resolves exact positions from OpenStreetMap. */
+const CC={SCO:"Scotland",ENG:"England",WAL:"Wales",NIR:"Northern Ireland",IRL:"Ireland",USA:"United States",AUS:"Australia",NZL:"New Zealand",ESP:"Spain",FRA:"France"};
+const COURSES=[
+ ["st-andrews-old","Old Course","St Andrews","SCO",56.343,-2.803,"uk"],["kingsbarns","Kingsbarns Golf Links","Kingsbarns","SCO",56.287,-2.648,"uk"],
+ ["crail-balcomie","Crail Balcomie Links","Crail","SCO",56.275,-2.619,"uk"],["anstruther","Anstruther Golf Club","Anstruther","SCO",56.229,-2.697,"uk"],
+ ["carnoustie","Carnoustie Championship","Carnoustie","SCO",56.497,-2.711,"uk"],["muirfield","Muirfield","Gullane","SCO",56.040,-2.810,"uk"],
+ ["north-berwick","North Berwick West Links","North Berwick","SCO",56.050,-2.717,"uk"],["musselburgh","Musselburgh Old Course","Musselburgh","SCO",55.950,-3.055,"uk"],
+ ["gleneagles","Gleneagles PGA Centenary","Auchterarder","SCO",56.283,-3.751,"uk"],["royal-troon","Royal Troon Old","Troon","SCO",55.541,-4.652,"uk"],
+ ["prestwick","Prestwick Golf Club","Prestwick","SCO",55.503,-4.615,"uk"],["turnberry","Turnberry Ailsa","Turnberry","SCO",55.320,-4.830,"uk"],
+ ["machrihanish","Machrihanish","Campbeltown","SCO",55.425,-5.736,"uk"],["loch-lomond","Loch Lomond","Luss","SCO",56.075,-4.585,"uk"],
+ ["royal-dornoch","Royal Dornoch Championship","Dornoch","SCO",57.882,-4.027,"uk"],["castle-stuart","Castle Stuart","Inverness","SCO",57.505,-4.075,"uk"],
+ ["cruden-bay","Cruden Bay","Cruden Bay","SCO",57.418,-1.858,"uk"],["royal-aberdeen","Royal Aberdeen","Aberdeen","SCO",57.179,-2.068,"uk"],
+ ["trump-scotland","Trump International Scotland","Balmedie","SCO",57.317,-2.039,"uk"],
+ ["royal-county-down","Royal County Down","Newcastle","NIR",54.218,-5.879,"uk"],["royal-portrush","Royal Portrush Dunluce","Portrush","NIR",55.204,-6.646,"uk"],
+ ["portstewart","Portstewart Strand","Portstewart","NIR",55.184,-6.723,"uk"],
+ ["ballybunion","Ballybunion Old","Ballybunion","IRL",52.512,-9.670,"uk"],["lahinch","Lahinch Old","Lahinch","IRL",52.938,-9.341,"uk"],
+ ["portmarnock","Portmarnock","Dublin","IRL",53.424,-6.133,"uk"],["royal-dublin","Royal Dublin","Dublin","IRL",53.368,-6.170,"uk"],
+ ["waterville","Waterville Golf Links","Waterville","IRL",51.830,-10.190,"uk"],["doonbeg","Doonbeg","Doonbeg","IRL",52.733,-9.516,"uk"],
+ ["old-head","Old Head of Kinsale","Kinsale","IRL",51.605,-8.538,"uk"],["adare","Adare Manor","Adare","IRL",52.570,-8.786,"uk"],
+ ["ballyliffin","Ballyliffin Glashedy","Ballyliffin","IRL",55.290,-7.380,"uk"],
+ ["royal-birkdale","Royal Birkdale","Southport","ENG",53.619,-3.042,"uk"],["royal-liverpool","Royal Liverpool","Hoylake","ENG",53.388,-3.183,"uk"],
+ ["royal-st-georges","Royal St George’s","Sandwich","ENG",51.278,1.364,"uk"],["royal-lytham","Royal Lytham & St Annes","Lytham","ENG",53.750,-3.030,"uk"],
+ ["wentworth","Wentworth West","Virginia Water","ENG",51.400,-0.597,"uk"],["royal-porthcawl","Royal Porthcawl","Porthcawl","WAL",51.480,-3.700,"uk"],
+ ["pebble-beach","Pebble Beach Golf Links","California","USA",36.568,-121.950,"pt"],["augusta","Augusta National","Georgia","USA",33.503,-82.020,"et"],
+ ["sawgrass","TPC Sawgrass Stadium","Florida","USA",30.198,-81.395,"et"],["pinehurst-2","Pinehurst No. 2","North Carolina","USA",35.196,-79.470,"et"],
+ ["torrey-pines","Torrey Pines South","California","USA",32.900,-117.250,"pt"],["bethpage-black","Bethpage Black","New York","USA",40.743,-73.456,"et"],
+ ["oakmont","Oakmont","Pennsylvania","USA",40.527,-79.825,"et"],["whistling-straits","Whistling Straits Straits","Wisconsin","USA",43.855,-87.728,"ct"],
+ ["kiawah","Kiawah Ocean Course","South Carolina","USA",32.609,-80.085,"et"],["shinnecock","Shinnecock Hills","New York","USA",40.897,-72.438,"et"],
+ ["bandon-dunes","Bandon Dunes","Oregon","USA",43.186,-124.396,"pt"],["merion","Merion East","Pennsylvania","USA",40.002,-75.304,"et"],
+ ["winged-foot","Winged Foot West","New York","USA",40.960,-73.730,"et"],
+ ["royal-melbourne","Royal Melbourne","Melbourne","AUS",-37.945,145.069,"au"],["cape-kidnappers","Cape Kidnappers","Hawke’s Bay","NZL",-39.650,177.000,"nz"],
+ ["valderrama","Real Club Valderrama","Sotogrande","ESP",36.287,-5.283,"cet"],["le-golf-national","Le Golf National","Paris","FRA",48.750,2.075,"cet"]
+].map(a=>({id:a[0],n:a[1],place:a[2],cc:a[3],lat:a[4],lon:a[5],tz:a[6]}));
+const FEATURED=["st-andrews-old","royal-troon","carnoustie","muirfield","royal-dornoch","turnberry","royal-county-down","royal-portrush","ballybunion","lahinch"];
+const courseById=id=>COURSES.find(c=>c.id===id)||S.custom.find(c=>c.id===id)||COURSES[0];
+const WARNURL={SCO:["Met Office warnings","https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings"],ENG:["Met Office warnings","https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings"],WAL:["Met Office warnings","https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings"],NIR:["Met Office warnings","https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings"],IRL:["Met Éireann warnings","https://www.met.ie/warnings"],USA:["National Weather Service","https://www.weather.gov/"]};
+const TRAFFIC={SCO:["Traffic Scotland","https://trafficscotland.org/"],ENG:["National Highways","https://nationalhighways.org/"],IRL:["AA Roadwatch","https://www.aaroadwatch.ie/"]};
+const MONEY={SCO:"£",ENG:"£",WAL:"£",NIR:"£",IRL:"€",ESP:"€",FRA:"€",USA:"$",AUS:"A$",NZL:"NZ$"};
+
+/* ================= data: simulated forecast (07:00 to 18:00) ================= */
+const SC={
+ calm:{n:"Settled and calm",a:{dir:240,spd:5,gust:11,temp:9,prob:5,mm:0},b:{dir:220,spd:8,gust:15,temp:12,prob:10,mm:0}},
+ breezy:{n:"Breezy with showers",a:{dir:225,spd:14,gust:26,temp:9,prob:35,mm:0.1},b:{dir:250,spd:22,gust:38,temp:10,prob:70,mm:0.9}},
+ gale:{n:"Gale and heavy rain",a:{dir:250,spd:24,gust:44,temp:7,prob:75,mm:1.4},b:{dir:290,spd:32,gust:56,temp:5,prob:90,mm:2.6}},
+ cold:{n:"Cold, bright, northerly",a:{dir:355,spd:10,gust:20,temp:-1,prob:5,mm:0},b:{dir:10,spd:14,gust:24,temp:4,prob:5,mm:0}}
+};
+const DUR={2:3.33,3:3.83,4:4.25};
+
+/* ================= data: clubs ================= */
+const BRANDS=["","Titleist","TaylorMade","Callaway","Ping","Cobra","Mizuno","Srixon","Cleveland","Honma","PXG","Wilson","Bridgestone","Vokey","Odyssey","Scotty Cameron","Other"];
+const LIB=[
+ {id:"D",n:"Driver",c:235,t:"D",g:"Woods"},{id:"MD",n:"Mini driver",c:225,t:"W",g:"Woods"},{id:"3W",n:"3 wood",c:215,t:"W",g:"Woods"},{id:"5W",n:"5 wood",c:200,t:"W",g:"Woods"},{id:"7W",n:"7 wood",c:185,t:"W",g:"Woods"},{id:"9W",n:"9 wood",c:172,t:"W",g:"Woods"},
+ {id:"2H",n:"2 hybrid",c:205,t:"H",g:"Hybrids and utility"},{id:"3H",n:"3 hybrid",c:195,t:"H",g:"Hybrids and utility"},{id:"4H",n:"4 hybrid",c:185,t:"H",g:"Hybrids and utility"},{id:"5H",n:"5 hybrid",c:175,t:"H",g:"Hybrids and utility"},{id:"6H",n:"6 hybrid",c:165,t:"H",g:"Hybrids and utility"},{id:"DI",n:"Driving iron",c:210,t:"H",g:"Hybrids and utility"},
+ {id:"3i",n:"3 iron",c:190,t:"I",g:"Irons"},{id:"4i",n:"4 iron",c:180,t:"I",g:"Irons"},{id:"5i",n:"5 iron",c:170,t:"I",g:"Irons"},{id:"6i",n:"6 iron",c:160,t:"I",g:"Irons"},{id:"7i",n:"7 iron",c:150,t:"I",g:"Irons"},{id:"8i",n:"8 iron",c:140,t:"I",g:"Irons"},{id:"9i",n:"9 iron",c:128,t:"I",g:"Irons"},
+ {id:"PW",n:"Pitching wedge",c:115,t:"Wd",g:"Wedges"},{id:"w48",n:"48° wedge",c:108,t:"Wd",g:"Wedges"},{id:"w50",n:"50° wedge",c:100,t:"Wd",g:"Wedges"},{id:"w52",n:"52° wedge",c:95,t:"Wd",g:"Wedges"},{id:"w54",n:"54° wedge",c:88,t:"Wd",g:"Wedges"},{id:"w56",n:"56° wedge",c:82,t:"Wd",g:"Wedges"},{id:"w58",n:"58° wedge",c:75,t:"Wd",g:"Wedges"},{id:"w60",n:"60° wedge",c:68,t:"Wd",g:"Wedges"},{id:"w62",n:"62° wedge",c:62,t:"Wd",g:"Wedges"},
+ {id:"Pt",n:"Putter",c:0,t:"P",g:"Putter and other"},{id:"Ch",n:"Chipper",c:0,t:"X",g:"Putter and other"}
+];
+const PRESETS={
+ standard:{n:"Standard",ids:["D","3W","5W","4H","5i","6i","7i","8i","9i","PW","w50","w54","w58","Pt"]},
+ links:{n:"Windy links",ids:["D","3W","DI","4H","5i","6i","7i","8i","9i","PW","w52","w56","w60","Pt"]},
+ wet:{n:"Wet and soft",ids:["D","3W","5W","5H","5i","6i","7i","8i","9i","PW","w52","w56","w60","Pt"]}
+};
+
+/* ================= state ================= */
+const S={fbType:"forecast",fbMsg:"",fbDiag:true,fbHole:null,live:true,comp:false,compAuto:false,course:"st-andrews-old",custom:[],date:todayPlus(1),tee:"09:10",group:4,scen:"breezy",gust:false,shape:"straight",flight:"mid",
+ u:{t:"F",w:"mph",d:"yd"},theme:"auto",size:0,bag:PRESETS.standard.ids.slice(),club:{},checks:{},loc:null,locMsg:"",search:false,q:"",appr:150,rating:null,
+ org:{interval:10,groups:40,gustLimit:40,rainLimit:2},drive:45,buffer:20,warm:{range:true,chip:true,putt:true,bunker:false},needs:{stepfree:false,buggy:false,badge:false},filter:"all"};
+LIB.forEach(c=>S.club[c.id]={brand:"",model:"",carry:c.c,age:""});
+const SAVE=["live","comp","compAuto","course","custom","shape","flight","u","theme","size","bag","club","checks","scen","gust","group","appr","org","drive","buffer","warm","needs"];
+try{const o=JSON.parse(localStorage.getItem("windward-v2")||"null");if(o)SAVE.forEach(k=>{if(o[k]!==undefined)S[k]=o[k]});
+  LIB.forEach(c=>{if(!S.club[c.id])S.club[c.id]={brand:"",model:"",carry:c.c,age:""}})}catch(e){}
+function save(){try{const o={};SAVE.forEach(k=>o[k]=S[k]);localStorage.setItem("windward-v2",JSON.stringify(o))}catch(e){}}
+const course=()=>courseById(S.course);
+
+/* ================= weather model ================= */
+/* ================= live forecast (Open-Meteo) with demo fallback ================= */
+const WXL={};
+function parseOM(j){
+  const H=j&&j.hourly;if(!H||!H.time||!H.wind_speed_10m)return null;const days={};
+  H.time.forEach((t,i)=>{const d=t.slice(0,10),hr=parseInt(t.slice(11,13),10),o={dir:+H.wind_direction_10m[i],spd:+H.wind_speed_10m[i],gust:+H.wind_gusts_10m[i],temp:+H.temperature_2m[i],mm:+H.precipitation[i]||0,
+      prob:H.precipitation_probability&&H.precipitation_probability[i]!=null?+H.precipitation_probability[i]:null};
+    if(![o.dir,o.spd,o.gust,o.temp].every(isFinite))return;(days[d]=days[d]||new Array(24).fill(null))[hr]=o});
+  Object.keys(days).forEach(d=>{const a=days[d];for(let k=0;k<24;k++)if(!a[k])a[k]=a[k-1]||a.find(Boolean)||null;
+    if(a.some(o=>!o))delete days[d];else a.forEach(o=>{if(o.prob===null)o.prob=o.mm>0.1?Math.min(90,40+o.mm*25):10})});
+  return Object.keys(days).length?days:null;
+}
+async function loadLive(c){
+  if(WXL[c.id])return;WXL[c.id]={status:"loading"};
+  try{
+    let days=null;
+    try{const o=JSON.parse(localStorage.getItem("windward-wx-"+c.id)||"null");if(o&&Date.now()-o.t<1800000)days=o.days}catch(e){}
+    if(!days){
+      const j=await getJson("https://api.open-meteo.com/v1/forecast?latitude="+c.lat+"&longitude="+c.lon+"&hourly=temperature_2m,precipitation,precipitation_probability,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&temperature_unit=celsius&precipitation_unit=mm&timezone=auto&forecast_days=16");
+      days=parseOM(j);if(days){try{localStorage.setItem("windward-wx-"+c.id,JSON.stringify({t:Date.now(),days}))}catch(e){}}
+    }
+    WXL[c.id]=days?{status:"live",days}:{status:"failed"};
+  }catch(e){WXL[c.id]={status:"failed",why:String(e&&e.message||e)}}
+  if(c.id===S.course)renderSoon();
+}
+function liveHours(){const L=WXL[S.course];if(S.live===false||!L||L.status!=="live")return null;const a=L.days[S.date];return a&&a.length===24?a:null}
+function wxBadge(){
+  const L=WXL[S.course];
+  if(S.live===false)return '<span class="badge">Demo forecast (simulated)</span>';
+  if(liveHours())return '<span class="badge ok">Live forecast · Open-Meteo</span>';
+  if(L&&L.status==="loading")return '<span class="badge">Loading live forecast…</span>';
+  if(L&&L.status==="live")return '<span class="badge">No forecast for this date yet (16 days ahead at most). Showing a demo.</span>';
+  return '<span class="badge">Demo forecast (simulated). Live forecast needs an internet connection.</span>';
+}
+
+function wx(h){
+  const a=liveHours();
+  if(a){const x=clamp(h,0,23.999),i=Math.floor(x),f=x-i,p=a[i],q=a[Math.min(23,i+1)],L=k=>p[k]+(q[k]-p[k])*f,diff=((q.dir-p.dir+540)%360)-180;return{dir:norm(p.dir+diff*f),spd:L("spd"),gust:L("gust"),temp:L("temp"),prob:L("prob"),mm:L("mm")}}
+  const sc=SC[S.scen]||SC.breezy,t=clamp((h-7)/11,0,1),L=k=>sc.a[k]+(sc.b[k]-sc.a[k])*t;
+  const diff=((sc.b.dir-sc.a.dir+540)%360)-180;
+  return{dir:norm(sc.a.dir+diff*t),spd:L("spd"),gust:L("gust"),temp:L("temp"),prob:L("prob"),mm:L("mm")};
+}
+function roundSum(tee){
+  if(tee===undefined)tee=parseT(S.tee);
+  const dur=DUR[S.group]||4.25;let sx=0,sy=0,sp=0,n=0,gm=0,gt=tee,tmin=99,tmax=-99,pm=0,mm=0,peak=0;
+  for(let t=tee;t<tee+dur-1e-9;t+=0.25){const w=wx(t);sx+=w.spd*Math.sin(rad(w.dir));sy+=w.spd*Math.cos(rad(w.dir));sp+=w.spd;n++;
+    if(w.gust>gm){gm=w.gust;gt=t}tmin=Math.min(tmin,w.temp);tmax=Math.max(tmax,w.temp);pm=Math.max(pm,w.prob);mm+=w.mm*0.25;peak=Math.max(peak,w.mm)}
+  return{tee,dur,end:tee+dur,dir:norm(deg(Math.atan2(sx,sy))),spd:sp/n,gust:gm,gt,tmin,tmax,prob:pm,mm,peak};
+}
+function inRound(){try{const n=new Date(),ds=n.getFullYear()+"-"+pad2(n.getMonth()+1)+"-"+pad2(n.getDate());if(ds!==S.date)return false;const h=n.getHours()+n.getMinutes()/60,R=roundSum();return h>=R.tee-0.25&&h<=R.end+0.25}catch(e){return false}}
+const comp=()=>!!S.comp||(!!S.compAuto&&inRound());
+/* sunrise / sunset with local time zone rules */
+function tzOff(c,ds){
+  const[y,m,d]=ds.split("-").map(Number),t=Date.UTC(y,m-1,d,12);
+  const lastSun=mi=>{const x=new Date(Date.UTC(y,mi+1,0));return x.getUTCDate()-x.getUTCDay()};
+  const nthSun=(mi,n)=>{const f=new Date(Date.UTC(y,mi,1)).getUTCDay();return 1+((7-f)%7)+(n-1)*7};
+  const eu=t>=Date.UTC(y,2,lastSun(2),1)&&t<Date.UTC(y,9,lastSun(9),1);
+  const us=t>=Date.UTC(y,2,nthSun(2,2),12)&&t<Date.UTC(y,10,nthSun(10,1),12);
+  switch(c.tz){case"uk":return eu?1:0;case"cet":return eu?2:1;case"et":return us?-4:-5;case"ct":return us?-5:-6;case"pt":return us?-7:-8;
+    case"au":return(t>=Date.UTC(y,9,nthSun(9,1))||t<Date.UTC(y,3,nthSun(3,1)))?11:10;
+    case"nz":return(t>=Date.UTC(y,8,lastSun(8))||t<Date.UTC(y,3,nthSun(3,1)))?13:12;default:return 0}
+}
+function sun(c,ds){
+  const[y,m,d]=ds.split("-").map(Number),N=Math.round((Date.UTC(y,m-1,d)-Date.UTC(y,0,0))/864e5),lat=rad(c.lat);
+  const g=0.98565*(N+10)+1.914*Math.sin(rad(0.98565*(N-2))),dec=-Math.asin(0.39779*Math.cos(rad(g)));
+  const cH=(Math.cos(rad(90.833))-Math.sin(lat)*Math.sin(dec))/(Math.cos(lat)*Math.cos(dec)),H=deg(Math.acos(clamp(cH,-1,1)))/15;
+  const B=rad(360/365*(N-81)),eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B),noon=12-c.lon/15-eot/60,off=tzOff(c,ds);
+  return{rise:noon-H+off,set:noon+H+off};
+}
+function alerts(R,c,sn){
+  const a=[],lk=WARNURL[c.cc];
+  if(R.gust>=58)a.push({l:"warning",tag:"Warning",t:"Severe gusts",d:(comp()?"Severe gusts expected around "+fmtT(R.gt):"Gusts up to "+fW(R.gust)+" around "+fmtT(R.gt))+". Consider whether play is safe."});
+  else if(R.gust>=48)a.push({l:"watch",tag:"Watch",t:"Damaging gusts possible",d:(comp()?"Damaging gusts possible around "+fmtT(R.gt):"Gusts up to "+fW(R.gust)+" around "+fmtT(R.gt))+"."});
+  else if(R.gust>=35)a.push({l:"advisory",tag:"Advisory",t:"Strong gusts",d:(comp()?"Strong gusts expected around "+fmtT(R.gt):"Gusts up to "+fW(R.gust)+" around "+fmtT(R.gt))+"."});
+  if(R.peak>=3)a.push({l:"watch",tag:"Watch",t:"Very heavy rain",d:"Peak rate "+fR(R.peak)+" per hour. Standing water likely."});
+  else if(R.peak>=1.5)a.push({l:"advisory",tag:"Advisory",t:"Heavy rain",d:"Peak rate "+fR(R.peak)+" per hour."});
+  if(R.tmin<=0)a.push({l:"advisory",tag:"Advisory",t:"Frost or ice",d:"Low of "+fT(R.tmin)+". Check the course is open."});
+  if(R.tmax>=30)a.push({l:"advisory",tag:"Advisory",t:"Heat",d:"High of "+fT(R.tmax)+". Carry extra water."});
+  if(R.end>sn.set-0.25)a.push({l:"info",tag:"Daylight",t:"Finish near dusk",d:"You finish about "+fmtT(R.end)+"; sunset is about "+fmtT(sn.set)+"."});
+  return{list:a,link:lk};
+}
+
+/* ================= course layout: real (OpenStreetMap) with illustrative fallback ================= */
+const LAYC={},REAL={};
+const ell=(cx,cy,rx,ry,rot,n)=>{const a=[];n=n||14;for(let i=0;i<n;i++){const t=i/n*6.2832,x=Math.cos(t)*rx,y=Math.sin(t)*ry;a.push([cx+x*Math.cos(rot)-y*Math.sin(rot),cy+x*Math.sin(rot)+y*Math.cos(rot)])}return a};
+const bboxOf=pts=>{let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});return{x0,x1,y0,y1}};
+function illus(c){
+  if(LAYC[c.id])return LAYC[c.id];
+  const r=rng(hash(c.id)),rr=rng(hash(c.id+"m")),PAR=[4,4,3,5,4,3,4,4,5,4,3,4,5,4,4,3,4,5],base=(r()<.5?70:250)+r()*40,holes=[],areas=[];let x=0,y=0;
+  PAR.forEach((p,i)=>{
+    if(i===9){const d=rad(norm(base+90));x+=Math.sin(d)*210;y+=Math.cos(d)*210}
+    const dir=norm((i<9?base:base+180)+(i%2?1:-1)*(10+r()*28)+(r()-.5)*24),b=Math.round(dir);
+    const yd=p===3?Math.round(142+r()*66):p===4?Math.round(350+r()*100):Math.round(490+r()*85),Lm=yd*0.9144;
+    const ux=Math.sin(rad(b)),uy=Math.cos(rad(b)),qx=uy,qy=-ux,tee=[x,y],gr=[x+ux*Lm,y+uy*Lm];
+    const dog=r()<0.45?(r()<.5?1:-1)*(0.09+r()*0.1)*Lm:0,mid=[x+ux*Lm*0.58+qx*dog,y+uy*Lm*0.58+qy*dog],bt=dog?Math.round(brg(tee,mid)):b,ba=dog?Math.round(brg(mid,gr)):b;
+    holes.push({p,y:yd,b,bt,ba,el:Math.round(r()*9-4),sh:Math.round((0.78+r()*0.22)*100)/100,tee,green:gr,line:dog?[tee,mid,gr]:[tee,gr],i});
+    areas.push({k:"green",h:i,pts:ell(gr[0],gr[1],15,12,rad(b),16)});
+    [1,-1].forEach((s,j)=>{if(r()<0.85)areas.push({k:"bunker",h:i,pts:ell(gr[0]+qx*s*(20+r()*6)-ux*(6+r()*8),gr[1]+qy*s*(20+r()*6)-uy*(6+r()*8),7,4.5,rad(b)+j,10)})});
+    if(p!==3&&r()<0.8){const f=0.62+r()*0.12,sd=r()<.5?1:-1;areas.push({k:"bunker",h:i,pts:ell(tee[0]+ux*Lm*f+qx*sd*17,tee[1]+uy*Lm*f+qy*sd*17,6,4,rad(b),10)})}
+    if(r()<0.28){const sd=r()<.5?1:-1;areas.push({k:"water",h:i,pts:ell(gr[0]-ux*Lm*0.35+qx*sd*30,gr[1]-uy*Lm*0.35+qy*sd*30,26,12,rad(b)+0.3,18)})}
+    x=gr[0]+(rr()-.5)*60;y=gr[1]+(rr()-.5)*60;
+  });
+  return LAYC[c.id]={src:"illus",holes,areas};
+}
+function layoutFor(c){const r=REAL[c.id];return r&&r.status==="real"?r.data:illus(c)}
+const projM=(lat0,lon0)=>(la,lo)=>[(lo-lon0)*Math.cos(rad(lat0))*111320,(la-lat0)*110540];
+const brg=(a,b)=>norm(deg(Math.atan2(b[0]-a[0],b[1]-a[1])));
+function buildReal(c,j){
+  const P=projM(c.lat,c.lon),els=(j&&j.elements)||[],hw=[],areas=[];
+  els.forEach(e=>{if(e.type!=="way"||!e.geometry||!e.tags)return;const g=e.tags.golf,pts=e.geometry.map(n=>P(n.lat,n.lon));
+    if(g==="hole"){const ref=parseInt(e.tags.ref,10);if(ref>=1&&ref<=18&&pts.length>=2)hw.push({ref,pts,ll:e.geometry,tags:e.tags})}
+    else if(g&&pts.length>=3)areas.push({k:/water/.test(g)?"water":g,pts})});
+  const out=[];let prev=null;
+  for(let k=1;k<=18;k++){
+    const cand=hw.filter(h=>h.ref===k);if(!cand.length)continue;
+    const an=prev?prev.pts[prev.pts.length-1]:[0,0];
+    cand.sort((a,b)=>Math.hypot(a.pts[0][0]-an[0],a.pts[0][1]-an[1])-Math.hypot(b.pts[0][0]-an[0],b.pts[0][1]-an[1]));
+    prev=cand[0];out.push(cand[0]);
+  }
+  if(out.length<9)return null;
+  const holes=out.map((w,i)=>{const pts=w.pts,n=pts.length,tee=pts[0],gr=pts[n-1];let m=0;for(let q=1;q<n;q++)m+=Math.hypot(pts[q][0]-pts[q-1][0],pts[q][1]-pts[q-1][1]);
+    const yd=Math.round(m/0.9144),mid=pts[Math.ceil((n-1)/2)],par=parseInt(w.tags.par,10)||(yd<250?3:yd>470?5:4);
+    return{p:par,y:yd,b:Math.round(brg(tee,gr)),bt:Math.round(brg(tee,mid)),ba:Math.round(brg(mid,gr)),el:0,sh:0.92,tee,green:gr,line:pts,i,tll:w.ll[0],gll:w.ll[n-1]}});
+  return{src:"real",holes,areas};
+}
+async function getJson(url){
+  const ac=typeof AbortController!=="undefined"?new AbortController():null,t=setTimeout(()=>{if(ac)ac.abort()},20000);
+  try{const r=await fetch(url,ac?{signal:ac.signal}:{});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(t)}
+}
+async function addElev(d){
+  const pts=[];d.holes.forEach(h=>{pts.push(h.tll,h.gll)});
+  const la=pts.map(p=>p.lat.toFixed(5)).join(","),lo=pts.map(p=>p.lon.toFixed(5)).join(",");
+  const j=await getJson("https://api.open-meteo.com/v1/elevation?latitude="+la+"&longitude="+lo);
+  if(j&&Array.isArray(j.elevation)&&j.elevation.length===pts.length)d.holes.forEach((h,i)=>{h.el=Math.round(j.elevation[2*i+1]-j.elevation[2*i])});
+}
+let rsoon=0;function renderSoon(){clearTimeout(rsoon);rsoon=setTimeout(()=>render(true),60)}
+async function loadReal(c){
+  if(REAL[c.id])return;REAL[c.id]={status:"loading"};
+  try{
+    let data=null;
+    try{const o=JSON.parse(localStorage.getItem("windward-real-"+c.id)||"null");if(o&&Date.now()-o.t<2592e6)data=o.data}catch(e){}
+    if(!data){
+      const q='[out:json][timeout:25];(way["golf"="hole"](around:2000,'+c.lat+','+c.lon+');way["golf"~"^(green|fairway|tee|bunker|water_hazard|lateral_water_hazard)$"](around:2000,'+c.lat+','+c.lon+'););out geom tags;';
+      const j=await getJson("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q));
+      data=buildReal(c,j);
+      if(data){try{await addElev(data)}catch(e){}try{localStorage.setItem("windward-real-"+c.id,JSON.stringify({t:Date.now(),data}))}catch(e){}}
+    }
+    REAL[c.id]=data?{status:"real",data}:{status:"failed",why:"Too few holes mapped"};
+  }catch(e){REAL[c.id]={status:"failed",why:String(e&&e.message||e)}}
+  if(c.id===S.course)renderSoon();
+}
+function layoutBadge(){
+  const r=REAL[S.course];
+  if(r&&r.status==="real")return '<span class="badge ok">Real course layout · OpenStreetMap contributors</span>';
+  if(r&&r.status==="loading")return '<span class="badge">Loading real course layout…</span>';
+  return '<span class="badge">Illustrative layout. Real course data loads in the app.</span>';
+}
+
+/* ================= bag & shot maths ================= */
+const bagClubs=()=>LIB.filter(c=>S.bag.includes(c.id)).map(c=>{const k=S.club[c.id]||{};return{...c,c:Number(k.carry)||0,brand:k.brand||"",model:k.model||"",age:k.age}});
+function gap(){
+  const a=bagClubs().filter(c=>["H","I","Wd"].includes(c.t)&&c.c>0).map(c=>c.c).sort((x,y)=>y-x);
+  if(a.length<3)return 10;let s=0;for(let i=1;i<a.length;i++)s+=a[i-1]-a[i];return clamp(s/(a.length-1),6,20);
+}
+const clubSub=c=>[c.brand,c.model].filter(Boolean).join(" ");
+function pick(y,kind){
+  let cs=bagClubs().filter(c=>c.t!=="P"&&c.t!=="X"&&c.c>0);
+  cs=kind==="app"?cs.filter(c=>["H","I","Wd"].includes(c.t)):cs.filter(c=>c.t!=="D");
+  if(!cs.length)return{n:"No suitable club",sub:"",over:false};
+  let best=cs[0];cs.forEach(c=>{const a=Math.abs(c.c-y),b=Math.abs(best.c-y);if(a<b||(a===b&&c.c>best.c))best=c});
+  return{n:best.n,sub:clubSub(best),over:y>best.c+8};
+}
+const FL={high:1.15,mid:1,low:0.85};
+function calcHole(h,i,R,G,N,tt){
+  const t=tt!==undefined?tt:R.tee+R.dur*(i+0.5)/N,w=wx(t),fl=FL[S.flight]||1,sp=(S.gust?w.gust:w.spd)*h.sh;
+  const comp=b=>{const rel=rad(w.dir-b);return{hw:sp*Math.cos(rel),cw:sp*Math.sin(rel)}};
+  const T=comp(h.bt!==undefined?h.bt:h.b),A=comp(h.ba!==undefined?h.ba:h.b),O=comp(h.b);
+  const cold=D=>D*0.003*Math.max(0,15-w.temp);
+  const pf=(c,D)=>D*(c.hw>=0?1+0.01*c.hw*fl:1+0.005*c.hw*fl)+h.el*1.1+cold(D);
+  const alf=c=>S.shape==="draw"?(c.cw>0?1.15:0.85):S.shape==="fade"?(c.cw>0?0.85:1.15):1;
+  const eq=Math.round(O.hw*(O.hw>=0?1:0.5)*1.5*fl/G*2)/2;
+  const dr=bagClubs().find(c=>c.id==="D"),dc=dr&&dr.c?dr.c:230;
+  return{h,i,t,w,spd:sp,hw:O.hw,cw:O.cw,T,A,eq,dc,al:alf(A),
+    plays:D=>pf(A,D),playsT:D=>pf(T,D),wfx:D=>D*(A.hw>=0?0.01*A.hw*fl:0.005*A.hw*fl),drift:D=>Math.abs(A.cw)*D/100*0.5*fl*alf(A)};
+}
+const clubsTxt=x=>{const r=Math.round(x*2)/2;return r===0?"no change":(r>0?"+":"\u2212")+Math.abs(r)+(Math.abs(r)===1?" club":" clubs")};
+function verdict(R){
+  if(R.mm>=1.5||(R.prob>=70&&R.mm>=0.5))return{k:"Full waterproofs",d:"About "+fR(R.mm)+" expected, with up to "+n0(R.prob)+"% chance of rain."};
+  if(R.prob>=40||R.mm>=0.3)return{k:"Rain jacket, pants in the bag",d:"Showers possible: up to "+n0(R.prob)+"% chance."};
+  return{k:"Dry round expected",d:"A light shell is enough. Rain chance peaks at "+n0(R.prob)+"%."};
+}
+
+/* ================= rate my bag (with a sense of humour) ================= */
+const RETRIEVED="15 November 2026";
+const BREV={
+ Titleist:{m:"TSR drivers",j:"Titleist: the logo that says “I have a fitting appointment”.",
+  pos:{q:"I am a huge fan of Titleist’s TSR range",s:"National Club Golfer",n:"",t:"Titleist TSR1 Driver Review",u:"https://www.nationalclubgolfer.com/gb/reviews/drivers/titleist-tsr1-driver-review/"},
+  neg:{q:"surprisingly underwhelming",s:"MyGolfSpy",n:"on the TSR2’s overall test",t:"Titleist TSR2 Driver Review",u:"https://mygolfspy.com/reviews/drivers/titleist-tsr2/"}},
+ TaylorMade:{m:"Qi10 driver",j:"TaylorMade: the brand that taught us to say “MOI” in public without blushing.",
+  pos:{q:"The most forgiving flagship driver of 2024",s:"GolfMagic",n:"",t:"TaylorMade Qi10 Driver Review",u:"https://www.golfmagic.com/equipment/drivers/taylormade-qi10-driver-review"},
+  neg:{q:"For me, no improvement in distance",s:"National Club Golfer",n:"",t:"TaylorMade Qi10 Driver Review",u:"https://www.nationalclubgolfer.com/reviews/drivers/taylormade-qi10-driver-review/?country=GB"}},
+ Callaway:{m:"Paradym Ai Smoke drivers",j:"Callaway: an AI-designed clubface. Your swing is now being judged by a machine, so no pressure.",
+  pos:{q:"we honestly couldn’t fault this driver",s:"GolfMagic",n:"on feel",t:"Callaway Paradym Ai Smoke Max Driver Review",u:"https://www.golfmagic.com/equipment/drivers/callaway-paradym-ai-smoke-max-driver-review"},
+  neg:{q:"does nothing for me",s:"National Club Golfer",n:"on the “smoke” graphic",t:"Callaway Paradym Ai Smoke Max D Driver Review",u:"https://www.nationalclubgolfer.com/gb/reviews/drivers/callaway-paradym-ai-smoke-max-d-driver-review/"}},
+ Ping:{m:"G430 Max 10K driver",j:"Ping: so forgiving that even your swing path gets a second chance.",
+  pos:{q:"You’ll struggle to find a more forgiving driver",s:"Today’s Golfer",n:"",t:"The King of Forgiveness: Ping G430 MAX 10K Driver Review",u:"https://www.todays-golfer.com/equipment/golf-clubs/drivers/ping/g430/max-10k-review"},
+  neg:{q:"Very futuristic appearance will turn off traditional golfers",s:"Golf Influence",n:"",t:"Ping G430 Max 10K Driver (My Honest Review)",u:"https://golfinfluence.com/gear/clubs/drivers/ping-g430-max-10k-driver"}},
+ Mizuno:{m:"Pro irons",j:"Mizuno: irons so soft the ball probably says thank you.",
+  pos:{q:"the undisputed benchmark for golfing luxury",s:"GolfMagic",n:"on the Pro M-13",t:"Mizuno Pro M-13 Irons Review: A new standard for a legendary iron range",u:"https://www.golfmagic.com/equipment/irons/mizuno-pro-m-13-irons-review"},
+  neg:{q:"Practically no forgiveness",s:"National Club Golfer",n:"on the blade-style Pro 221",t:"Mizuno Pro 221 Irons Review",u:"https://www.nationalclubgolfer.com/reviews/mizuno-pro-221-irons-review"}},
+ Vokey:{m:"SM10 wedges",j:"Vokey: a grind for every swing, and every excuse.",
+  pos:{q:"doesn’t rewrite the rulebook, but it doesn’t need to",s:"National Club Golfer",n:"",t:"Titleist Vokey SM10 Wedges Review",u:"https://www.nationalclubgolfer.com/gb/reviews/wedges/titleist-vokey-sm10-wedges-review/?country=GB"},
+  neg:{q:"No noticeable improvement from the previous iteration",s:"GolfMagic",n:"",t:"Titleist Vokey SM10 Wedge Review",u:"https://golfmagic.com/equipment/wedges/titleist-vokey-sm10-wedge-review"}}
+};
+const citeOf=x=>x.s+", “"+x.t+"”. "+x.u+" (retrieved "+RETRIEVED+")";
+const GEN={
+ Cobra:"Cobra: the snake stays on the headcover and off the scorecard. Hopefully.",
+ Cleveland:"Cleveland: wedges that have seen more sand than a beach lifeguard.",
+ Srixon:"Srixon: the quiet friend who turns up on time and does the job.",
+ Honma:"Honma: a bag that looks like it came with a butler. Respect.",
+ PXG:"PXG: bold looks, bolder invoice.",
+ Wilson:"Wilson: classic and dependable. (Not to be confused with the volleyball.)",
+ Bridgestone:"Bridgestone: the ball fitters will tell you plenty; your putter will tell you more.",
+ Odyssey:"Odyssey: an epic journey that, ideally, ends in the hole.",
+ "Scotty Cameron":"Scotty Cameron: a putter with its own fan club."
+};
+function rateBag(){
+  const R=roundSum(),cs=bagClubs(),n=cs.length,good=[],ideas=[],has=id=>S.bag.includes(id);let s=6.6;
+  if(!n)return{score:0,head:"Add some clubs first. An empty bag is a very honest bag.",good:[],ideas:[],brands:[]};
+  const RM=["9W","7W","6H","3i","4i","5W","2H"],rmv=ex=>n>=14?RM.find(x=>has(x)&&x!==ex)||null:null;
+  const windy=R.spd>=16||R.gust>=30,wet=R.mm>=0.5,avgT=(R.tmin+R.tmax)/2;
+  if(has("Pt")){s+=.5;good.push("A putter in the bag. Bold. Brave. Correct.")}else ideas.push({t:"No putter. Bold plan, but the greens do like one.",add:"Pt",rm:rmv("Pt")});
+  if(has("D")||has("MD")){s+=.3;good.push("A driver for the long holes, because pitching wedge off every tee is a brave strategy.")}
+  if(n===14){s+=.4;good.push("Exactly 14 clubs: the legal limit, and not a penalty stroke in sight.")}else ideas.push({t:"You have "+(14-n)+" open slot"+(14-n===1?"":"s")+". Free real estate, so add a club for the conditions."});
+  const car=cs.filter(c=>["H","I","Wd"].includes(c.t)&&c.c>0).map(c=>c.c).sort((a,b)=>b-a);
+  if(car.length>=4){let mg=0,gi=0;for(let i=1;i<car.length;i++){const g=car[i-1]-car[i];if(g>mg){mg=g;gi=i}}
+    if(mg<=16){s+=1;good.push("Even yardage gaps, the biggest only "+fD(mg)+". Your 7-iron and 8-iron are on speaking terms.")}
+    else{if(mg<=24){s+=.5;good.push("Mostly tidy gapping through the set.")}
+      const mid=(car[gi-1]+car[gi])/2;let best=null;LIB.filter(c=>["H","I","Wd"].includes(c.t)&&!has(c.id)).forEach(c=>{const cv=Number(S.club[c.id].carry)||c.c;if(!best||Math.abs(cv-mid)<Math.abs((Number(S.club[best.id].carry)||best.c)-mid))best=c});
+      if(best)ideas.push({t:"Gap alert: "+fD(mg)+" between "+fD(car[gi-1])+" and "+fD(car[gi])+". A "+best.n+" would turn that “feel shot” into a stock one.",add:best.id,rm:rmv(best.id)})}}
+  if(car.length&&car[car.length-1]<=80){s+=.4;good.push("Short-game range down to about "+fD(car[car.length-1])+". No more awkward in-between yardages.")}
+  if(windy){
+    if(has("DI")||has("3i")){s+=.6;good.push("A driving iron or long iron: in this wind yours is a missile while everyone else’s ball is a kite.")}
+    else ideas.push({t:"A driving iron gives a low, penetrating flight. In this wind a high ball is a kite with ambitions.",add:"DI",rm:rmv("DI")});
+    if(S.flight==="high")ideas.push({t:"Your high flight is a weapon on calm days. Today, a knock-down with an extra club stops it becoming a kite."});
+    if(S.flight==="low"){s+=.3;good.push("Your lower ball flight is a gift in this wind. Enjoy the smug feeling.")}
+  }
+  if(wet){
+    if(cs.filter(c=>c.t==="H").length>=2){s+=.4;good.push("Hybrids: the umbrellas of the bag. They carry well and land softly on wet ground.")}
+    else ideas.push({t:"Hybrids launch easily and land softly when it’s soggy. A 5 hybrid could replace a long iron.",add:"5H",rm:n>=14?(has("5i")?"5i":has("4i")?"4i":has("3i")?"3i":null):null});
+  }
+  if(avgT<=4)ideas.push({t:"Expect roughly "+fD(150*0.003*(15-avgT))+" less carry on a 150-yard shot in this cold. Take more club and blame the weather. It’s an accepted excuse."});
+  if(!windy&&!wet&&avgT>4){s+=.3;good.push("Conditions are friendly and this bag suits them. Try not to let it go to your head.")}
+  const aged=cs.filter(c=>c.age!==""&&c.age!==undefined&&!isNaN(+c.age));
+  if(aged.length){
+    if(aged.filter(c=>+c.age<=4).length/aged.length>=.5){s+=.5;good.push("Much of your bag is fresh out of the box. The wallet is recovering; the scorecard says thanks.")}
+    if(cs.some(c=>c.t==="Wd"&&c.age!==""&&+c.age>=4))ideas.push({t:"Wedges over four years old have lost groove sharpness. They have seen things. Spin drops in the wet, so a fresh pair is worth a look."});
+    if(cs.some(c=>c.t==="D"&&c.age!==""&&+c.age>=6))ideas.push({t:"A driver of six years or more: current heads are typically faster and more forgiving. A launch-monitor session would show the gain."});
+    if(cs.some(c=>c.t==="I"&&c.age!==""&&+c.age>=8))ideas.push({t:"Irons of eight years or more may be worth testing against current models at a fitting. Nostalgia is lovely but it doesn’t spin."});
+  }else ideas.push({t:"Add the age of your clubs for a sharper equipment check. We won’t tell anyone."});
+  const withModel=cs.filter(c=>c.model).length;
+  if(withModel>=8){s+=.3;good.push("You’ve recorded your equipment in detail. Insurance companies would be proud.")}
+  else if(withModel<3&&aged.length)ideas.push({t:"Add brands and models for a more tailored review."});
+  const mk=new Set(cs.filter(c=>["I","Wd"].includes(c.t)&&c.brand).map(c=>c.brand));
+  if(mk.size>1)good.push("Blending makers in irons and wedges is common among tour players, so nobody can call you disloyal.");
+  s=clamp(s,5.5,9.8);
+  const heads=[[9,"Tour-van energy. Your caddie is asking about a raise."],[8.5,"A smart bag. Your playing partners will pretend not to be jealous."],[7.5,"A solid bag with a few easy wins. Think of it as a very good first draft."],[0,"A charming bag with room to grow. Like most golf swings."]];
+  const seen=[];cs.forEach(c=>{if(c.brand&&c.brand!=="Other"&&!seen.includes(c.brand))seen.push(c.brand)});
+  const brands=seen.map(b=>BREV[b]?Object.assign({b},BREV[b]):{b,gen:GEN[b]||(b+": no review quotes loaded for this one yet. Your scorecard will be the review.")});
+  return{score:s,head:heads.find(h=>s>=h[0])[1],good:good.slice(0,6),ideas:ideas.slice(0,5),brands};
+}
+
+/* ================= icons ================= */
+const ARROW="M12 2l7 10h-5v10h-4V12H5z";
+const IC={
+ wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/>',flag:'<path d="M5 21V4M5 4h12l-3 4 3 4H5"/>',club:'<path d="M14 3l-5 15a3 3 0 1 0 5-1M14 3l3 1"/>',
+ kit:'<path d="M3 12a9 9 0 0 1 18 0H3zM12 12v6a2 2 0 0 0 4 0"/>',car:'<path d="M5 16v-5l2-5h10l2 5v5M3 16h18M7.5 16.5v2M16.5 16.5v2"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',back:'<path d="M15 5l-7 7 7 7"/>',
+ bag:'<path d="M8 7h8l1 14H7L8 7zM10 7V4h4v3"/>'
+};
+const ico=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const LOGO='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--acc)" stroke-width="2"/><g transform="rotate(45 16 16)"><path d="M16 5l6 9h-4v9h-4v-9h-4z" fill="var(--acc)"/></g></svg>';
+
+/* ================= maps (canvas): hole maps, course map, rain ================= */
+let RAF=0,MT=0;const MAPS=new Map();
+const reduced=()=>{try{return window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+const spCol=v=>v<10?"#B7F7D2":v<20?"#E8F27A":v<30?"#FFB547":"#FF6B5E";
+const rainWord=w=>w.mm<0.05?"Dry":w.mm<0.5?"Light rain":w.mm<2?"Moderate rain":"Heavy rain";
+function clearMaps(){MAPS.clear();cancelAnimationFrame(RAF);RAF=0}
+function startLoop(){if(RAF||reduced())return;const tick=ts=>{RAF=0;let any=false;MAPS.forEach((m,cv)=>{if(!cv.isConnected){MAPS.delete(cv);return}any=true;m.draw(ts)});if(any)RAF=requestAnimationFrame(tick)};RAF=requestAnimationFrame(tick)}
+function addMap(cv,m){MAPS.set(cv,m);m.draw(0);startLoop()}
+function redrawAll(){MAPS.forEach(m=>m.draw(0))}
+function along(pts,f){
+  let tot=0;for(let i=1;i<pts.length;i++)tot+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+  let d=tot*f;for(let i=1;i<pts.length;i++){const s=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+    if(d<=s||i===pts.length-1){const u=s?Math.min(1,d/s):0;return[pts[i-1][0]+(pts[i][0]-pts[i-1][0])*u,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*u,brg(pts[i-1],pts[i])]}d-=s}
+  return[pts[0][0],pts[0][1],0];
+}
+function makeMap(box,spec){
+  const cv=box.querySelector("canvas");if(!cv||!cv.getContext)return;const ctx=cv.getContext("2d");if(!ctx)return;
+  const c=course(),L=layoutFor(c),N=L.holes.length,dpr=Math.min(window.devicePixelRatio||1,2),isHole=spec.mode==="hole",hole=isHole?L.holes[spec.idx]:null;
+  if(isHole&&!hole)return;
+  const W=Math.max(260,box.clientWidth||320),H=isHole?Math.round(W*1.3):Math.round(W*0.74);
+  /* hole maps are rotated so the tee is at the bottom and the green at the top; the course map stays north-up */
+  const th=isHole?rad(hole.b):0,sn=Math.sin(th),cs=Math.cos(th),rot=(x,y)=>[x*cs-y*sn,x*sn+y*cs];
+  const pts=isHole?hole.line.concat([hole.tee,hole.green]):L.holes.reduce((a,h)=>a.concat(h.line),[]);
+  const bbw=bboxOf(pts),rp=pts.map(p=>rot(p[0],p[1])),bb=bboxOf(rp),bw=Math.max(bb.x1-bb.x0,150),bh=Math.max(bb.y1-bb.y0,120),cx=(bb.x0+bb.x1)/2,cy=(bb.y0+bb.y1)/2;
+  const padX=isHole?42:28,padT=isHole?60:46,padB=isHole?46:34,sc=Math.min((W-2*padX)/bw,(H-padT-padB)/bh),oy=(padT-padB)/2;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+"px";box.style.height=H+"px";
+  const P=(x,y)=>{const r=rot(x,y);return[(W/2+(r[0]-cx)*sc)*dpr,(H/2+oy-(r[1]-cy)*sc)*dpr]};
+  const bg=document.createElement("canvas");bg.width=cv.width;bg.height=cv.height;const b=bg.getContext&&bg.getContext("2d");if(!b)return;
+  b.lineCap="round";b.lineJoin="round";
+  const poly=(p,fill)=>{b.fillStyle=fill;b.beginPath();p.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.closePath();b.fill()};
+  const showH=isHole?[hole]:L.holes;
+  const g0=b.createLinearGradient(0,0,0,bg.height);g0.addColorStop(0,"#12331F");g0.addColorStop(1,"#0A1D13");b.fillStyle=g0;b.fillRect(0,0,bg.width,bg.height);
+  const near=a=>{if(L.src==="illus")return isHole?a.h===spec.idx:true;const q=a.pts[0];return q[0]>bbw.x0-350&&q[0]<bbw.x1+350&&q[1]>bbw.y0-350&&q[1]<bbw.y1+350};
+  const AR=L.areas.filter(near),colr={water:"#2F7FB5",fairway:"#2E8B57",tee:"#43A870",bunker:"#E6D7A3",green:"#8CF0AD"};
+  if(L.src==="illus"||!AR.some(a=>a.k==="fairway")){showH.forEach(h=>{b.strokeStyle="#2E8B57";b.lineWidth=Math.max(5,30*sc)*dpr;b.beginPath();h.line.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.stroke()})}
+  ["water","fairway","tee","bunker","green"].forEach(k=>AR.filter(a=>a.k===k).forEach(a=>poly(a.pts,colr[k])));
+  showH.forEach((h,hi)=>{
+    b.strokeStyle="rgba(255,255,255,.65)";b.lineWidth=1.6*dpr;b.setLineDash([6*dpr,6*dpr]);b.beginPath();
+    h.line.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.stroke();b.setLineDash([]);
+    const t=P(h.tee[0],h.tee[1]),g=P(h.green[0],h.green[1]);
+    if(isHole){
+      b.fillStyle="#fff";b.fillRect(t[0]-6*dpr,t[1]-6*dpr,12*dpr,12*dpr);
+      b.fillStyle="#fff";b.font="700 "+(10*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="top";b.fillText("TEE",t[0],t[1]+9*dpr);
+      b.strokeStyle="#fff";b.lineWidth=2*dpr;b.beginPath();b.moveTo(g[0],g[1]);b.lineTo(g[0],g[1]-20*dpr);b.stroke();b.fillStyle="#FF6B5E";b.beginPath();b.moveTo(g[0],g[1]-20*dpr);b.lineTo(g[0]+12*dpr,g[1]-15*dpr);b.lineTo(g[0],g[1]-10*dpr);b.closePath();b.fill();
+      [0.3,0.55,0.8].forEach(f=>{const a=along(h.line,f),z=P(a[0],a[1]);b.save();b.translate(z[0],z[1]);b.rotate(rad(a[2])-th);b.strokeStyle="#fff";b.lineWidth=2.4*dpr;b.beginPath();b.moveTo(-6*dpr,4*dpr);b.lineTo(0,-4*dpr);b.lineTo(6*dpr,4*dpr);b.stroke();b.restore()});
+    }else{
+      const a=along(h.line,0.5),z=P(a[0],a[1]);b.fillStyle="rgba(6,16,10,.8)";b.beginPath();b.arc(z[0],z[1]-9*dpr,7*dpr,0,7);b.fill();
+      b.fillStyle="#fff";b.font="700 "+(9*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="middle";b.fillText(String(hi+1),z[0],z[1]-8.5*dpr);
+    }
+  });
+  /* compass: the arrow points to where north is on this map */
+  const kx=bg.width-28*dpr,ky=bg.height-30*dpr,na=-th;b.fillStyle="rgba(6,16,10,.72)";b.beginPath();b.arc(kx,ky,21*dpr,0,7);b.fill();
+  b.save();b.translate(kx,ky);b.rotate(na);b.fillStyle="#fff";b.beginPath();b.moveTo(0,-10*dpr);b.lineTo(-4.5*dpr,0);b.lineTo(4.5*dpr,0);b.closePath();b.fill();b.restore();
+  b.fillStyle="#fff";b.font="800 "+(10*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="middle";b.fillText("N",kx+Math.sin(na)*15.5*dpr,ky-Math.cos(na)*15.5*dpr);
+  const parts=[],newP=()=>({x:Math.random()*cv.width,y:Math.random()*cv.height}),R=roundSum();
+  function draw(ts){
+    const t=spec.timeFn(),w=wx(t),spd=w.spd*(isHole?hole.sh:1),to=rad(norm(w.dir+180))-th;
+    ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(bg,0,0);
+    if(!isHole){const idx=t>=R.tee&&t<=R.end?clamp(Math.floor((t-R.tee)/R.dur*N),0,N-1):-1;if(idx>=0){const g=P(L.holes[idx].green[0],L.holes[idx].green[1]);ctx.strokeStyle="#C7F264";ctx.lineWidth=2.5*dpr;ctx.beginPath();ctx.arc(g[0],g[1],(13+2*Math.sin(ts/300))*dpr,0,7);ctx.stroke()}}
+    if(comp())return;
+    const n=clamp(Math.round(10+spd*0.9),10,38);while(parts.length<n)parts.push(newP());parts.length=n;
+    const gf=1+Math.min(.5,(w.gust-w.spd)/Math.max(w.spd,5)*.5)*Math.sin(ts/700),v=(0.3+spd*0.05)*gf*dpr*(reduced()?0:1),len=(8+spd*0.45)*dpr,col=spCol(spd);
+    ctx.shadowColor="rgba(0,0,0,.55)";ctx.shadowBlur=3*dpr;
+    parts.forEach(p=>{p.x+=Math.sin(to)*v;p.y-=Math.cos(to)*v;const m=30*dpr;
+      if(p.x<-m)p.x=cv.width+m;if(p.x>cv.width+m)p.x=-m;if(p.y<-m)p.y=cv.height+m;if(p.y>cv.height+m)p.y=-m;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(to);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.globalAlpha=.9;ctx.lineWidth=2.2*dpr;ctx.lineCap="round";
+      ctx.beginPath();ctx.moveTo(0,len/2);ctx.lineTo(0,-len/2+3*dpr);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-len/2-2*dpr);ctx.lineTo(-4.5*dpr,-len/2+5*dpr);ctx.lineTo(4.5*dpr,-len/2+5*dpr);ctx.closePath();ctx.fill();ctx.restore()});
+    ctx.shadowBlur=0;
+  }
+  addMap(cv,{draw});
+}
+function makeRain(box){
+  const cv=box.querySelector("canvas");if(!cv||!cv.getContext)return;const ctx=cv.getContext("2d");if(!ctx)return;
+  const dpr=Math.min(window.devicePixelRatio||1,2),W=Math.max(260,box.clientWidth||320),H=130;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+"px";box.style.height=H+"px";
+  const drops=[],cloud=(x,y,s,a)=>{ctx.fillStyle="rgba(214,228,238,"+a+")";[[0,0,22],[22,-8,26],[48,0,20],[24,8,26]].forEach(p=>{ctx.beginPath();ctx.arc((x+p[0]*s)*dpr,(y+p[1]*s)*dpr,p[2]*s*dpr,0,7);ctx.fill()})};
+  function draw(ts){
+    const w=wx(MT),mm=w.mm,pr=clamp(w.prob/100,0,1),to=rad(norm(w.dir+180)),still=reduced();
+    const g=ctx.createLinearGradient(0,0,0,cv.height);g.addColorStop(0,"rgb("+n0(70-34*pr)+","+n0(130-60*pr)+","+n0(185-70*pr)+")");g.addColorStop(1,"rgb("+n0(34-12*pr)+","+n0(70-28*pr)+","+n0(100-30*pr)+")");
+    ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,cv.height);
+    if(pr<0.25&&mm<0.05){const sx=W*0.78*dpr,sy=44*dpr;ctx.fillStyle="#FFD54A";ctx.beginPath();ctx.arc(sx,sy,16*dpr,0,7);ctx.fill();ctx.strokeStyle="#FFD54A";ctx.lineWidth=2.5*dpr;ctx.lineCap="round";
+      for(let i=0;i<8;i++){const a=i*Math.PI/4+(still?0:ts/4000);ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*23*dpr,sy+Math.sin(a)*23*dpr);ctx.lineTo(sx+Math.cos(a)*32*dpr,sy+Math.sin(a)*32*dpr);ctx.stroke()}}
+    else{cloud(W*0.12,36,1.0,0.35+0.6*pr);cloud(W*0.5,28,1.2,0.3+0.65*pr);cloud(W*0.8,44,0.8,0.25+0.55*pr)}
+    const n=mm<0.02?0:clamp(Math.round(14+mm*55),14,170);while(drops.length<n)drops.push({x:Math.random()*cv.width,y:Math.random()*cv.height});drops.length=n;
+    const len=(8+Math.min(mm,3)*5)*dpr,vy=(5+Math.min(mm,3)*2.5)*dpr*(still?0:1),vx=comp()?0:Math.sin(to)*Math.min(w.spd,40)*0.09*dpr*(still?0:1);
+    ctx.strokeStyle="rgba(176,218,255,.88)";ctx.lineWidth=1.6*dpr;ctx.lineCap="round";
+    drops.forEach(d=>{d.x+=vx;d.y+=vy;if(d.y>cv.height){d.y=-len;d.x=Math.random()*cv.width}if(d.x<-20)d.x=cv.width+20;if(d.x>cv.width+20)d.x=-20;
+      ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x-vx*1.8,d.y-len);ctx.stroke()});
+  }
+  addMap(cv,{draw});
+}
+function rainBars(R){
+  let h="";for(let k=Math.floor(R.tee);k<Math.ceil(R.end);k++){const w=wx(k+0.5),now=MT>=k&&MT<k+1;
+    h+='<div class="rb'+(now?" now":"")+'"><i style="height:'+n0(clamp(w.prob*0.56,3,56))+'px" title="'+fR(w.mm)+' per hour"></i>'+n0(w.prob)+'%<br>'+pad2(k)+'</div>'}
+  return '<div class="rbars" role="img" aria-label="Chance of rain by hour">'+h+'</div>';
+}
+let HV=0;
+const holeTime=(i,R,N)=>R.tee+R.dur*(i+0.5)/N;
+const clubShort=c=>/^w\d+$/.test(c.id)?c.id.slice(1)+"°":c.id==="D"?"Dr":c.id;
+const ARW=(d)=>'<svg viewBox="0 0 12 12" aria-hidden="true"'+(d?' style="transform:rotate(180deg)"':'')+'><path d="M6 1l5.2 9.5H.8z"/></svg>';
+function clubPanel(x,D){
+  const G=gap(),c=Math.round(x.wfx(D)/G*2)/2,a=Math.abs(c),dir=c>0?"up":c<0?"dn":"fl",n=Math.min(4,a>=0.5?Math.max(1,Math.round(a)):0);
+  const whole=Math.floor(a),lab=dir==="fl"?"No change":(whole?whole:"")+(a%1?"½":"")+" club"+(a>1?"s":"")+(dir==="up"?" more":" less");
+  const cl=bagClubs().filter(k=>k.t!=="P"&&k.t!=="X"&&k.c>0).sort((p,q)=>q.c-p.c),eff=cl.map(k=>x.wfx(k.c));
+  const rows=cl.map((k,i)=>{const e=-eff[i],w=clamp(Math.abs(e)/40,0.04,1)*100,v=S.u.d==="yd"?e:e*0.9144,t=Math.abs(v)<0.5?"0":(v>0?"+":"\u2212")+Math.abs(Math.round(v));
+    return '<div class="cr"><b>'+clubShort(k)+'</b><i class="'+(e<0?"l":e>0?"g":"")+'" style="width:'+w+'%"></i><span>'+t+'</span></div>'}).join("");
+  return{cls:dir,html:'<div class="ca">'+(n?Array(n).fill(0).map(()=>ARW(dir==="dn")).join(""):"<em>\u2014</em>")+'</div><div class="ch">'+lab+'</div><div class="cap">Carry change, '+(S.u.d==="yd"?"yd":"m")+'</div>'+rows};
+}
+function liveStamp(i,t){
+  const R=roundSum(),G=gap(),L=layoutFor(course()).holes,h=L[i];if(!h)return{cls:"fl",html:""};
+  const x=calcHole(h,i,R,G,L.length,t),D=h.p===3?h.y:S.appr;return clubPanel(x,D);
+}
+function mapReadout(){
+  const R=roundSum(),w=wx(MT),L=layoutFor(course()),rt=route(),el=document.getElementById("mr");
+  if(el){
+    if(rt==="home"){const h=L.holes[HV];if(h){const sp=w.spd*h.sh,hw=sp*Math.cos(rad(w.dir-h.b)),wd=hw>=3?"into":hw<=-3?"helping":"light";el.innerHTML=comp()?'<span class="pillro">'+fmtT(MT)+'</span>':'<span class="pillro">'+fmtT(MT)+' · '+card(w.dir)+' '+fW(sp)+' · '+wd+'</span>';
+      const hn=document.getElementById("hn");if(hn)hn.textContent="Hole "+(HV+1)+" of "+L.holes.length;const hs=document.getElementById("hs");if(hs)hs.textContent="Par "+h.p+" · "+fD(h.y);
+      const cp=document.getElementById("cpanel");if(cp){if(comp()){cp.hidden=true}else{cp.hidden=false;const q=liveStamp(HV,MT);cp.className="cpanel "+q.cls;cp.innerHTML=q.html}}const rw=document.getElementById("rbw");if(rw)rw.innerHTML=rainBars(R)}}
+    else{const idx=MT>=R.tee&&MT<=R.end?clamp(Math.floor((MT-R.tee)/R.dur*L.holes.length),0,L.holes.length-1)+1:0;el.innerHTML='<span class="pillro">'+fmtT(MT)+(idx?' · Hole '+idx:'')+'</span>'+(comp()?'':'<span class="pillro">'+card(w.dir)+' '+fW(w.spd)+' · gusts '+fW(w.gust)+'</span>')}
+  }
+  const rr=document.getElementById("rr");if(rr)rr.textContent=rainWord(w)+" · "+fR(w.mm)+"/h · "+n0(w.prob)+"% chance";
+}
+
+/* ================= feedback ================= */
+const FEEDBACK_EMAIL="";   /* set to the address that should receive feedback; if empty the phone's share sheet or clipboard is used */
+const APPV="v9";
+const FBT=[["forecast","Forecast looks wrong or odd"],["layout","Hole layout or direction looks wrong"],["advice","Club advice or wind numbers"],["bag","Rate my bag or review quotes"],["practice","Practice facility details"],["broken","Something is broken"],["idea","An idea"]];
+function fbText(){
+  const c=course(),L=layoutFor(c),r=REAL[c.id],wl=WXL[c.id],ty=(FBT.find(x=>x[0]===S.fbType)||FBT[0])[1];
+  let t="Windward feedback ("+APPV+")\nAbout: "+ty+"\n\n"+(S.fbMsg||"(your message)")+"\n";
+  if(S.fbDiag!==false){
+    t+="\n--- Diagnostics ---\nCourse: "+c.n+", "+c.place+" ("+c.id+")\nDate and tee: "+S.date+" "+S.tee+", group of "+S.group+"\nForecast: "+(liveHours()?"live (Open-Meteo)":"demo")+(wl?" ["+wl.status+"]":"")+"\nLayout: "+(L.src==="real"?"real (OpenStreetMap)":"illustrative")+(r?" ["+r.status+(r.why?": "+r.why:"")+"]":"")+", "+L.holes.length+" holes\n";
+    if(S.fbHole!==null&&S.fbHole!==undefined)t+="Hole: "+(S.fbHole+1)+"\n";
+    t+="Competition mode: "+(comp()?"on":"off")+"\nShot shape and flight: "+S.shape+", "+S.flight+"\nUnits: "+S.u.t+", "+S.u.w+", "+S.u.d+"\nClubs in bag: "+S.bag.length+"\nPage: "+route()+"\nDevice: "+(navigator.userAgent||"unknown")+"\n";
+  }
+  return t;
+}
+function viewFeedback(){
+  const mail=!!FEEDBACK_EMAIL;
+  return `${subHead("Feedback")}
+  <div class="card"><div class="lbl">What is it about?</div>
+   <select data-bind="fbtype" aria-label="What is the feedback about">${FBT.map(x=>`<option value="${x[0]}" ${S.fbType===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+   <div class="lbl" style="margin-top:14px">Tell us what you saw</div>
+   <textarea id="fbm" data-live="fbm" placeholder="For example: hole 7 runs the other way, or the rain arrived two hours earlier than forecast." aria-label="Your feedback">${esc(S.fbMsg||"")}</textarea>
+   <div class="chk" style="padding:12px 0 4px"><input type="checkbox" id="fbd" ${S.fbDiag!==false?"checked":""} data-bind="fbdiag"><label for="fbd"><b>Include diagnostics</b><br><span class="small mut">Course, date, forecast and layout status, settings and device. Never your location.</span></label></div>
+   <div style="margin-top:10px"><button class="btn" data-act="fbsend">${mail?"Send by email":"Send feedback"}</button><button class="btn ghost" data-act="fbcopy">Copy</button></div>
+   <p class="small mut" id="fbmsg" style="margin:4px 0 0">${mail?"Opens your email app with the message ready to send.":"Opens your phone’s share sheet so you can send it by email or message, or copies it if sharing isn’t available."}</p></div>
+  <div class="card"><div class="lbl">Preview</div><pre id="fbprev" class="small" style="white-space:pre-wrap;word-break:break-word;margin:0;font-family:inherit">${esc(fbText())}</pre></div>`;
+}
+/* ================= views ================= */
+function subHead(t,back){return `<div class="sub"><a class="iconbtn" href="#${back||"home"}" aria-label="Back">${ico("back")}</a><div><div class="lbl" style="margin:0">${esc(course().n)}</div><h1>${t}</h1></div></div>`}
+function nearList(){
+  if(S.loc){return{cap:"Nearest courses to you",ids:COURSES.map(c=>({id:c.id,d:hav(S.loc[0],S.loc[1],c.lat,c.lon)})).sort((a,b)=>a.d-b.d).slice(0,10).map(x=>x.id)}}
+  return{cap:"Featured in Scotland and Ireland",ids:FEATURED};
+}
+function searchRes(q){
+  q=String(q||"").trim().toLowerCase();const all=COURSES.concat(S.custom);
+  const hits=(q?all.filter(c=>(c.n+" "+c.place+" "+(CC[c.cc]||"")).toLowerCase().includes(q)):all.slice(0,0)).slice(0,12);
+  if(!q)return '<p class="small mut" style="margin:10px 2px 0">Type a course, town or country. The full app searches every mapped course worldwide.</p>';
+  if(hits.length)return '<div class="results">'+hits.map(c=>`<button data-act="pick" data-v="${c.id}"><b>${esc(c.n)}</b><br><small>${esc(c.place)}, ${esc(CC[c.cc]||c.cc)}</small></button>`).join("")+'</div>';
+  return `<div style="margin-top:10px"><p class="small mut">No match in the demo list. Add “${esc(q)}” with its coordinates (long-press the course in any map app).</p>
+   <div class="grid2"><input type="number" id="clat" step="any" placeholder="Latitude" aria-label="Latitude"><input type="number" id="clon" step="any" placeholder="Longitude" aria-label="Longitude"></div>
+   <p class="err" id="cerr" style="margin:8px 0 0"></p><button class="btn sm" style="margin-top:8px" data-act="addcustom">Add course</button></div>`;
+}
+function viewHome(){
+  const c=course(),R=roundSum(),sn=sun(c,S.date),A=alerts(R,c,sn),near=nearList(),L=layoutFor(c),N=L.holes.length;HV=clamp(HV,0,N-1);
+  if(MT<R.tee||MT>R.end)MT=holeTime(HV,R,N);
+  const ids=near.ids.slice();if(!ids.includes(c.id))ids.unshift(c.id);
+  const opts=ids.map(id=>{const x=courseById(id);return `<option value="${esc(x.id)}" ${x.id===c.id?"selected":""}>${esc(x.n)} · ${esc(x.place)}</option>`}).join("");
+  const vd=verdict(R);
+  const al=A.list.map(a=>`<div class="alert ${a.l}" role="alert"><div class="tag">${a.tag}</div><div><b>${esc(a.t)}</b><span class="small mut">${esc(a.d)}</span></div></div>`).join("");
+  return `
+  <div class="card hero">
+    <div class="lbl">Course</div><h1>Know the wind before you tee it up.</h1>
+    <select id="csel" data-bind="course" aria-label="Course">${opts}<option value="__other">Other course…</option></select>
+    <div class="small mut" style="margin:6px 4px 10px">${near.cap}. <a href="#" data-act="loc">${S.loc?"Update my location":"Use my location"}</a>${S.locMsg?`<br><span class="err">${esc(S.locMsg)}</span>`:""}</div>
+    ${S.search?`<div style="margin:0 0 12px"><input type="text" id="q" data-live="q" value="${esc(S.q)}" placeholder="Search any course, town or country" aria-label="Search courses" autocomplete="off"><div id="res">${searchRes(S.q)}</div></div>`:""}
+    <div class="grid2"><div><div class="lbl">Date</div><input type="date" id="date" value="${S.date}" data-bind="date" aria-label="Date"></div>
+    <div><div class="lbl">First tee</div><input type="time" id="tee" step="300" value="${S.tee}" data-bind="tee" aria-label="First tee time"></div></div>
+  </div>
+  <div style="margin:0 0 10px">${wxBadge()}</div>
+  <div class="stats">
+    ${comp()?`<div class="stat"><span>Wind</span><b>Hidden</b><span>competition mode</span></div>
+    <div class="stat"><span>Top gust</span><b>Hidden</b><span>competition mode</span></div>`:`<div class="stat"><span>Wind</span><b>${fW(R.spd)}</b><span>from ${card(R.dir)}</span></div>
+    <div class="stat"><span>Top gust</span><b>${fW(R.gust)}</b><span>around ${fmtT(R.gt)}</span></div>`}
+    <div class="stat"><span>Temp · rain</span><b>${fT((R.tmin+R.tmax)/2)}</b><span>${R.prob>=40||R.mm>=0.3?fR(R.mm)+" rain":"mostly dry"}</span></div>
+  </div>
+  ${comp()?`<div class="alert info"><div class="tag">Competition</div><div><b>Club advice and wind information are hidden</b><span class="small mut">Rain, temperature and safety warnings only.${S.comp?"":" Switched on automatically for your round."}</span></div></div>`:""}
+  ${al}
+  ${A.link?`<p class="small mut" style="margin:-2px 2px 12px">Check the official source before you travel: <a href="${A.link[1]}" target="_blank" rel="noopener">${A.link[0]}</a></p>`:""}
+  <div class="card" style="padding:12px"><div class="flick"><button class="iconbtn" data-act="hole" data-v="-1" aria-label="Previous hole">‹</button><div style="text-align:center"><h2 id="hn">Hole ${HV+1} of ${N}</h2><span class="small mut" id="hs"></span></div><button class="iconbtn" data-act="hole" data-v="1" aria-label="Next hole">›</button></div>
+    <div style="text-align:center;margin:8px 0 0">${layoutBadge()}</div>
+    <div class="mapbox hm port" id="h1box" style="touch-action:pan-y"><canvas role="img" aria-label="Wind map of the selected hole. Arrows show wind direction and strength."></canvas><div class="mapro" id="mr"></div><div class="cpanel fl" id="cpanel"></div></div>
+    <input type="range" id="mt" data-live="mt" min="${R.tee}" max="${R.end}" step="0.25" value="${MT}" aria-label="Time through your round">
+    ${comp()?"":`<div class="legend"><span><i style="background:#B7F7D2"></i>under ${fW(10)}</span><span><i style="background:#E8F27A"></i>${fW(10)}–${fW(20)}</span><span><i style="background:#FFB547"></i>${fW(20)}–${fW(30)}</span><span><i style="background:#FF6B5E"></i>over ${fW(30)}</span></div>`}
+    <p class="small mut" style="margin:8px 2px 0">${comp()?"Swipe the map or tap ‹ › to flick between holes. Wind is hidden in competition mode.":"Swipe the map or tap ‹ › to flick between holes. Tee at the bottom, green at the top: arrows heading down the screen are in your face, arrows heading up are helping. The side panel shows how far the wind moves each of your clubs; the arrows say how many clubs more or less to take."}</p></div>
+  <div class="card" style="padding:12px"><div class="rowh"><h2>Rain</h2><span class="small mut" id="rr"></span></div>
+    <div class="mapbox rn" id="rnbox"><canvas role="img" aria-label="Rain graphic for the selected time"></canvas></div><div id="rbw">${rainBars(R)}</div></div>
+  <div class="tiles">
+    <a class="tile" href="#holes">${ico("flag")}<div><b>All holes</b><span>Wind map for each</span></div></a>
+    <a class="tile" href="#course">${ico("wind")}<div><b>Course map</b><span>Whole layout</span></div></a>
+    <a class="tile" href="#clubs">${ico("club")}<div><b>Club choice</b><span>${comp()?"Hidden in competition":"Plays-like yardage"}</span></div></a>
+    <a class="tile" href="#bag">${ico("bag")}<div><b>Rate my bag</b><span>Brutally kind</span></div></a>
+    <a class="tile" href="#kit">${ico("kit")}<div><b>Kit</b><span>${esc(vd.k)}</span></div></a>
+    <a class="tile" href="#travel">${ico("car")}<div><b>Getting there</b><span>Leave-by time</span></div></a>
+  </div>
+  <a class="btn ghost" style="width:100%" href="#feedback" data-act="fb" data-t="forecast">Send feedback</a>
+  <p class="demo">Weather data by Open-Meteo.com (CC BY 4.0). Course shapes © OpenStreetMap contributors where available. ${longDate(S.date)}.</p>`;
+}
+function viewCourse(){
+  const R=roundSum();if(MT<R.tee||MT>R.end)MT=R.tee;
+  return `${subHead("Course map")}
+  <div class="card" style="padding:12px"><div class="rowh"><span></span>${layoutBadge()}</div>
+   <div class="mapbox hm" id="cbox"><canvas role="img" aria-label="Animated wind map of the whole course"></canvas><div class="mapro" id="mr"></div></div>
+   <input type="range" id="mt" data-live="mt" min="${R.tee}" max="${R.end}" step="0.25" value="${MT}" aria-label="Time through your round">
+   ${comp()?"":`<div class="legend"><span><i style="background:#B7F7D2"></i>under ${fW(10)}</span><span><i style="background:#E8F27A"></i>${fW(10)}–${fW(20)}</span><span><i style="background:#FFB547"></i>${fW(20)}–${fW(30)}</span><span><i style="background:#FF6B5E"></i>over ${fW(30)}</span></div>`}
+   <p class="small mut" style="margin:8px 2px 0">On this full-course map north is up. The ringed green is the hole you’d be playing at the chosen time.</p></div>`;
+}
+function viewHoles(){
+  const R=roundSum(),G=gap(),LL=layoutFor(course()).holes,N=LL.length,all=LL.map((h,i)=>calcHole(h,i,R,G,N)),f=comp()&&(S.filter==="into"||S.filter==="cross")?"all":S.filter;
+  const show=all.filter(x=>f==="all"||(f==="into"&&x.eq>=1)||(f==="p3"&&x.h.p===3)||(f==="cross"&&Math.abs(x.cw)>=8));
+  const pills=[["all","All"],["into","Into the wind"],["p3","Par 3s"],["cross","Crosswind"]].filter(p=>!comp()||p[0]==="all"||p[0]==="p3").map(p=>`<button class="pill${f===p[0]?" on":""}" data-act="filter" data-v="${p[0]}">${p[1]}</button>`).join("");
+  const rows=show.map(x=>{
+    const h=x.h;let main;
+    if(x.eq>=1)main=`<span class="chip c-into">INTO ${fW(x.hw)}</span>`;
+    else if(x.eq<=-1)main=`<span class="chip c-down">DOWNWIND ${fW(-x.hw)}</span>`;
+    else if(Math.abs(x.hw)<3&&Math.abs(x.cw)<3)main=`<span class="chip c-calm">CALM</span>`;
+    else main=`<span class="chip c-calm">${x.hw>=0?"LIGHT HEAD":"LIGHT TAIL"} ${fW(Math.abs(x.hw))}</span>`;
+    const cwc=Math.abs(x.cw)>=4?`<span class="chip c-cross">CROSS ${x.cw>0?"R\u2192L":"L\u2192R"} ${fW(Math.abs(x.cw))}</span>`:"";
+    const D=h.p===3?h.y:S.appr,pl=x.plays(D),cl=pick(pl,h.p===3?"p3":"app"),ud=S.u.d==="yd"?"yd":"m",cv=v=>S.u.d==="yd"?v:v*0.9144;
+    const adv=!comp();
+    let det=!adv?`<p class="small mut">Competition mode is on, so club advice and wind information are hidden.</p>`:h.p===3?`<p><b>Plays like ${fD(pl)}</b> (${sg(cv(pl-D))} ${ud}, ${clubsTxt((pl-D)/G)}). Club: <b>${esc(cl.n)}</b>${cl.sub?` <span class="mut">(${esc(cl.sub)})</span>`:""}.</p>`
+      :`<p><b>Tee shot:</b> a ${fD(x.dc)} drive plays about ${fD(Math.abs(x.playsT(x.dc)-x.dc))} ${x.playsT(x.dc)-x.dc>=0?"longer":"shorter"} in these conditions.</p><p><b>Approach from ${fD(D)}:</b> plays ${fD(pl)} (${clubsTxt((pl-D)/G)}). Club: <b>${esc(cl.n)}</b>${cl.sub?` <span class="mut">(${esc(cl.sub)})</span>`:""}.</p>`;
+    if(adv&&Math.abs(x.A.cw)>=4)det+=`<p>Drift about <b>${fD(x.drift(D))}</b>. Aim ${x.A.cw>0?"right":"left"} of target.${S.shape!=="straight"?(x.al>1?" Wind adds to your "+S.shape+".":" Wind holds up your "+S.shape+"."):""}</p>`;
+    const dl=Math.abs(((h.bt-h.ba+540)%360)-180)>25?`Dogleg: tee shot plays ${card(h.bt)}, approach plays ${card(h.ba)}. `:"";
+    det+=`<p class="small mut">${dl}${comp()?"":"Wind then "+card(x.w.dir)+" "+fW(x.w.spd)+(h.sh<.95?"; shelter cuts it to "+fW(x.spd):"")+". "}${h.el?(h.el>0?"Uphill ":"Downhill ")+Math.abs(h.el)+" m. ":""}Plays ${card(h.b)} (${h.b}°).</p>`;
+    return `<details data-hole="${x.i}"><summary><div class="hn">${x.i+1}</div><div style="flex:1"><b>Par ${h.p} · ${fD(h.y)}</b>${comp()?"":"<br>"+main+cwc}</div><span class="small mut num">${fmtT(x.t)}</span></summary><div class="hbody">
+      <div class="mapbox hm port" data-mapbox><canvas role="img" aria-label="Wind map of hole ${x.i+1}"></canvas><div class="mapro"><span class="pillro">Hole ${x.i+1} · tee ↓ green ↑</span>${comp()?"":`<span class="pillro">${card(x.w.dir)} ${fW(x.spd)}</span>`}</div>${adv?(()=>{const q=clubPanel(x,D);return `<div class="cpanel ${q.cls}">${q.html}</div>`})():""}</div>${det}</div></details>`;
+  }).join("");
+  return `${subHead("Holes")}${layoutBadge()} <a class="small" href="#feedback" data-act="fb" data-t="layout">Layout looks wrong? Tell us</a><div class="pills" role="group" aria-label="Filter holes">${pills}</div>
+  <div class="card" style="padding:4px 16px">${rows||'<p style="padding:12px 0">No holes match this filter today.</p>'}</div>
+  <p class="demo">Tap a hole for its own wind map: tee at the bottom, green at the top, so arrows heading down the screen are into you. Wind is shown at the time you reach each hole.</p>`;
+}
+function viewClubs(){
+  if(comp())return `${subHead("Club choice")}<div class="card"><h2>Hidden in competition mode</h2><p class="mut" style="margin:6px 0 0">Club suggestions are switched off while Competition mode is on. The forecast, warnings and wind maps are still available. You can change this in Settings.</p></div><a class="btn" href="#settings">Open settings</a>`;
+  const R=roundSum(),G=gap(),LL=layoutFor(course()).holes,all=LL.map((h,i)=>calcHole(h,i,R,G,LL.length));
+  const rows=all.map(x=>{const h=x.h,D=h.p===3?h.y:S.appr,pl=x.plays(D),cl=pick(pl,h.p===3?"p3":"app");
+    return `<tr><td><b>${x.i+1}</b></td><td>${h.p===3?"Par 3":"Appr."} ${fD(D)}</td><td class="n">${fD(pl)}</td><td><b>${esc(cl.n)}</b>${cl.sub?`<br><span class="small mut">${esc(cl.sub)}</span>`:""}${cl.over?'<br><span class="small mut">Longest club in this bag</span>':""}</td></tr>`}).join("");
+  const ap=[120,150,175].map(v=>`<button class="pill${S.appr===v?" on":""}" data-act="appr" data-v="${v}">${fD(v)}</button>`).join("");
+  return `${subHead("Club choice")}
+  <div class="card"><div class="lbl">Approach distance for par 4s and 5s</div><div class="pills" style="margin:0">${ap}</div></div>
+  <div class="card"><table><thead><tr><th>#</th><th>Shot</th><th class="n">Plays</th><th>Club</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <a class="btn" href="#bag">${ico("bag").replace("<svg","<svg style=\"width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2\"")}Edit bag and rate it</a>`;
+}
+
+function viewBag(){
+  const G=gap(),n=S.bag.length,u=S.u.d==="yd"?"yd":"m";
+  const groups=[...new Set(LIB.map(c=>c.g))];
+  const body=groups.map((g,gi)=>{
+    const items=LIB.filter(c=>c.g===g),cnt=items.filter(c=>S.bag.includes(c.id)).length;
+    const rows=items.map(c=>{const on=S.bag.includes(c.id),dis=!on&&n>=14,k=S.club[c.id];
+      return `<div class="club"><div class="r1"><input type="checkbox" id="c-${c.id}" ${on?"checked":""} ${dis?"disabled":""} data-bind="club" data-v="${c.id}" aria-label="${c.n}"><label for="c-${c.id}"><b>${c.n}</b></label>${c.t==="P"||c.t==="X"?'<span class="small mut" style="text-align:right">no carry</span>':`<input type="number" inputmode="numeric" value="${dispD(k.carry)}" data-bind="carry" data-v="${c.id}" aria-label="${c.n} carry in ${u==="yd"?"yards":"meters"}" style="text-align:right">`}</div>
+      ${on?`<div class="r2"><select data-bind="brand" data-v="${c.id}" aria-label="${c.n} brand">${BRANDS.map(b=>`<option value="${esc(b)}" ${k.brand===b?"selected":""}>${b||"Brand"}</option>`).join("")}</select><input type="text" value="${esc(k.model)}" placeholder="Model" data-bind="model" data-v="${c.id}" aria-label="${c.n} model" maxlength="40"><input type="number" inputmode="numeric" min="0" max="40" value="${esc(k.age)}" placeholder="Yrs" data-bind="age" data-v="${c.id}" aria-label="${c.n} age in years"></div>`:""}</div>`}).join("");
+    return `<details ${gi<4||cnt?"open":""}><summary><h3 style="flex:1">${g}</h3><span class="small mut">${cnt} selected</span></summary><div style="padding-bottom:6px">${rows}</div></details>`}).join("");
+  const pb=Object.keys(PRESETS).map(k=>`<button class="pill" data-act="preset" data-v="${k}">${PRESETS[k].n}</button>`).join("");
+  let rate="";
+  if(S.rating){const r=S.rating,pc=Math.round(r.score*10);
+    const brandHtml=r.brands.length?`<h3 style="margin-top:16px">Brand chat</h3>${r.brands.map(x=>x.gen?`<div class="brand"><b>${esc(x.b)}</b><p class="small" style="margin:4px 0 0">${esc(x.gen)}</p></div>`:
+      `<div class="brand"><b>${esc(x.b)}</b> <span class="small mut">(reviews of ${esc(x.m)})</span><p class="small" style="margin:4px 0">${esc(x.j)}</p>
+       <div class="small"><b>The praise</b><blockquote>“${esc(x.pos.q)}”</blockquote><span class="mut">${esc(x.pos.s)}${x.pos.n?", "+esc(x.pos.n):""} · <a href="${x.pos.u}" target="_blank" rel="noopener">${esc(x.pos.t)}</a></span></div>
+       <div class="small" style="margin-top:8px"><b>The grumble</b><blockquote>“${esc(x.neg.q)}”</blockquote><span class="mut">${esc(x.neg.s)}${x.neg.n?", "+esc(x.neg.n):""} · <a href="${x.neg.u}" target="_blank" rel="noopener">${esc(x.neg.t)}</a></span></div></div>`).join("")}
+       <details class="cites"><summary><b>Sources for citation</b></summary><ol class="small">${r.brands.filter(x=>!x.gen).map(x=>`<li>${esc(citeOf(x.pos))}</li><li>${esc(citeOf(x.neg))}</li>`).join("")}</ol><button class="btn sm ghost" data-act="copycite">Copy citations</button> <span class="small mut" id="citemsg"></span></details>
+       <p class="small mut">Short extracts from published reviews of the named models, some a few seasons old. Each links to the full review. Opinions are the reviewers’, not ours.</p>`:`<p class="small mut" style="margin-top:12px">Add a brand to your clubs below and we’ll add the brand chat.</p>`;
+    rate=`<div class="card"><div style="display:flex;gap:16px;align-items:center"><div class="ring" style="background:conic-gradient(var(--acc) ${pc*3.6}deg,var(--line) 0)"><span>${r.score.toFixed(1)}</span></div><div><div class="lbl" style="margin:0">Bag rating</div><h2>${esc(r.head)}</h2></div></div>
+    ${r.good.length?`<h3 style="margin-top:16px">What’s working</h3>${r.good.map(g=>`<div class="idea"><span>✓ ${esc(g)}</span></div>`).join("")}`:""}
+    ${r.ideas.length?`<h3 style="margin-top:16px">Ideas to consider</h3>${r.ideas.map(i=>`<div class="idea"><span>${esc(i.t)}</span>${i.add&&(S.bag.length<14||i.rm)?`<button class="btn sm" data-act="apply" data-add="${i.add}" data-rm="${i.rm||""}">${i.rm?"Swap":"Add"}</button>`:""}</div>`).join("")}`:""}
+    ${brandHtml}
+    <p class="small mut" style="margin:12px 0 0">Based on today’s conditions, your gaps and the details you entered. Entirely for fun, mostly accurate.</p></div>`}
+  return `${subHead("Your bag","clubs")}
+  <div class="counter" role="status"><span>${n} of 14 clubs</span><span>avg gap ${fD(G)}</span></div>
+  ${comp()?`<div class="card"><b>Rate my bag is hidden in competition mode</b><p class="small mut" style="margin:6px 0 0">It recommends clubs for the conditions. Switch Competition mode off to use it.</p></div>`:`<button class="btn" style="width:100%;margin:0 0 14px" data-act="rate">Rate my bag</button>
+  ${rate}`}
+  <div class="card"><div class="lbl">Quick set-ups</div><div class="pills" style="margin:0">${pb}</div><p class="small mut" style="margin:10px 0 0">Tick up to 14. Enter carry distance in ${u==="yd"?"yards":"meters"}, then brand, model and age in years if you like. Your choices stay on this device.</p></div>
+  <div class="card" style="padding:4px 16px">${body}</div>`;
+}
+
+function kitList(R,sn){
+  const k=[],add=(id,t,w)=>k.push({id,t,w}),V=verdict(R),wet=R.mm>=1.5||(R.prob>=70&&R.mm>=0.5),mid=!wet&&(R.prob>=40||R.mm>=0.3);
+  if(wet){add("wp","Rain jacket and pants",V.d);add("shoes","Waterproof shoes and spare socks","Wet feet cost shots as well as comfort.");add("gl","Two or three spare gloves or rain gloves","A wet glove slips; rotate them.");add("tw","Two towels, one under the bag hood","Keep the grips dry for every shot.");add("hood","Bag rain hood","Protects grips and spare gloves.");
+    if(R.gust<30)add("umb","Umbrella","Gusts stay under "+fW(30)+", so one is usable.");else add("umb","Skip the umbrella; use a hooded jacket",comp()?"Strong gusts are forecast.":"Gusts reach "+fW(R.gust)+".")}
+  else if(mid){add("wp","Rain jacket in the bag, pants to hand",V.d);add("gl","One spare glove","Showers are possible.");add("tw","One towel","Keep it handy.")}
+  else add("shell","Light shell jacket","Rain is unlikely but a shell weighs almost nothing.");
+  if(R.spd>=18||R.gust>=30){add("wind","Windproof mid-layer",comp()?"Windy conditions are forecast.":"Average "+fW(R.spd)+", gusts to "+fW(R.gust)+".");add("mk","Weighted ball marker and spare tees","Markers and tees move in strong wind.")}
+  if(R.tmin<=3){add("th","Thermal base layer, hat and snood","Low of "+fT(R.tmin)+".");add("hw","Hand warmers and winter gloves","Hands lose feel quickly in the cold.")}
+  else if(R.tmin<=8)add("lay","Layers: vest, ear band, winter gloves","Low of "+fT(R.tmin)+".");
+  if(R.tmax>=24)add("sun","Sunscreen, cap and plenty of water","High of "+fT(R.tmax)+".");
+  if(R.end>sn.set-0.5)add("day","Check the last tee time against dusk","You finish about "+fmtT(R.end)+"; sunset is about "+fmtT(sn.set)+".");
+  add("bm","Ball markers, tees, divot tool and pencil","Standard competition kit.");add("balls","At least six balls","Wind and rain mean more lost balls.");
+  return k;
+}
+function viewKit(){
+  const R=roundSum(),sn=sun(course(),S.date),V=verdict(R),items=kitList(R,sn),cold=150*0.003*Math.max(0,15-(R.tmin+R.tmax)/2);
+  const rows=items.map(i=>`<div class="chk"><input type="checkbox" id="k-${i.id}" ${S.checks[i.id]?"checked":""} data-bind="chk" data-v="${i.id}"><label for="k-${i.id}"><b>${esc(i.t)}</b><br><span class="small mut">${esc(i.w)}</span></label></div>`).join("");
+  return `${subHead("Kit")}
+  <div class="card" style="background:var(--acc);color:var(--acc-ink);border-color:var(--acc)"><h2>${V.k}</h2><p style="margin:4px 0 0">${V.d}</p></div>
+  <div class="card"><div class="lbl">Pack list</div>${rows}</div>
+  <div class="card"><div class="lbl">Equipment notes</div>
+   <p><b>Cold air:</b> about ${fD(cold)} less carry on a 150-yard shot at ${fT((R.tmin+R.tmax)/2)}.</p>
+   ${comp()?"":`<p><b>Wind:</b> ${R.spd>=15?"a lower ball flight and a smooth swing hold the line best. Consider a driving iron off exposed tees.":"no special equipment needed."}</p>`}
+   <p style="margin:0"><b>Wet ground:</b> ${R.mm>=0.5?"expect less roll, so carry distance matters more than total.":"normal firmness expected."}</p></div>`;
+}
+
+/* Practice facility data: only entries taken from the club's or organisation's own published material, each with a source link.
+   To add a course, add an entry here with a https source for every item. Items without a source are never shown. */
+const PRACTICE={
+ "st-andrews-old":{site:"https://standrews.com",siteName:"St Andrews Links Trust (standrews.com)",checked:"15 November 2026",items:[
+  {n:"Golf Academy driving range",d:"Floodlit driving range with indoor and outdoor bays. The Academy is open 07:00 to 20:00, seven days a week.",sn:"St Andrews Links Trust, Student Term-Time Terms and Conditions 2026-27 (PDF)",src:"https://assets-eu-01.kc-usercontent.com/faf6531c-2af4-0128-bed9-496b32f5822b/4c616e3b-7edd-4717-b284-61daa784e0c8/Student%20Term-Time%20Terms%20_%20Conditions%202026-27.pdf"},
+  {n:"Short-game area",d:"A short-game area for chipping, bunker and putting practice, at the Golf Academy.",sn:"St Andrews Links Trust, Student Term-Time Terms and Conditions 2026-27 (PDF)",src:"https://assets-eu-01.kc-usercontent.com/faf6531c-2af4-0128-bed9-496b32f5822b/4c616e3b-7edd-4717-b284-61daa784e0c8/Student%20Term-Time%20Terms%20_%20Conditions%202026-27.pdf"},
+  {n:"Accessibility",d:"Accessible parking or drop-off point, level access and accessible toilets.",sn:"VisitScotland listing for St Andrews Links",src:"https://visitscotland.com/info/see-do/st-andrews-links-p736901"}]}
+};
+function practiceCard(c){
+  const P=PRACTICE[c.id];
+  if(!P)return `<div class="card"><div class="lbl">Practice and access</div><h3>Not verified yet</h3><p class="small mut" style="margin:6px 0 12px">We only show practice details taken from the club’s or organisation’s own website, with a link to the page. This course hasn’t been added yet.</p>
+    <a class="btn sm ghost" href="https://duckduckgo.com/?q=${encodeURIComponent(c.n+" "+c.place+" golf practice facilities")}" target="_blank" rel="noopener">Find the club’s website</a> <button class="btn sm" data-act="fb" data-t="practice">Send us the details</button></div>`;
+  const items=P.items.filter(i=>i.src&&/^https:\/\//.test(i.src));
+  return `<div class="card"><div class="lbl">Practice and access</div>${items.map(i=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${esc(i.n)}</b><p class="small" style="margin:4px 0">${esc(i.d)}</p><p class="small mut" style="margin:0">Source: <a href="${i.src}" target="_blank" rel="noopener">${esc(i.sn)}</a></p></div>`).join("")}
+    <p class="small mut" style="margin:10px 0 0">Checked ${P.checked}. Prices and hours change, so confirm with <a href="${P.site}" target="_blank" rel="noopener">${esc(P.siteName)}</a> before you go.</p></div>`;
+}
+function viewTravel(){
+  const c=course(),q=encodeURIComponent(c.n+", "+c.place),tee=parseT(S.tee);
+  const steps=[["Park and walk to the clubhouse",5,true],["Change shoes and pack the bag",10,true],["Check in and buy range balls",10,true],["Driving range",20,S.warm.range],["Chipping and pitching",10,S.warm.chip],["Putting green",10,S.warm.putt],["Bunker practice",5,S.warm.bunker],["Walk to the first tee",5,true]].filter(s=>s[2]);
+  const total=steps.reduce((a,s)=>a+s[1],0),start=tee-5/60-total/60,travel=(Number(S.drive)||0)*(1+Number(S.buffer)/100),leave=start-travel/60;
+  let t=start;const tl=steps.map(s=>{const r=`<div class="step"><b class="t">${fmtT(t)}</b><span>${s[0]} <span class="small mut">(${s[1]} min)</span></span></div>`;t+=s[1]/60;return r}).join("");
+  const tr=TRAFFIC[c.cc];
+  return `${subHead("Getting there")}
+  <div class="card"><div class="lbl">Directions</div><p><b>${esc(c.n)}</b><br><span class="mut">${esc(c.place)}, ${esc(CC[c.cc]||"")}</span></p>
+   <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=driving" target="_blank" rel="noopener">Google Maps</a>
+   <a class="btn ghost" href="https://waze.com/ul?q=${q}&navigate=yes" target="_blank" rel="noopener">Waze</a>
+   <a class="btn ghost" href="https://maps.apple.com/?daddr=${q}&dirflg=d" target="_blank" rel="noopener">Apple Maps</a>
+   ${tr?`<p class="small mut" style="margin:12px 0 0">Live traffic: <a href="${tr[1]}" target="_blank" rel="noopener">${tr[0]}</a></p>`:""}</div>
+  ${practiceCard(c)}
+  <div class="card"><div class="lbl">When to leave</div>
+   <div class="grid2"><div><div class="lbl">Drive (min)</div><input type="number" inputmode="numeric" min="0" max="600" value="${S.drive}" data-bind="drive" aria-label="Normal drive time in minutes"></div>
+   <div><div class="lbl">Traffic buffer</div><select data-bind="buffer" aria-label="Traffic buffer">${[0,10,20,30,50].map(v=>`<option value="${v}" ${Number(S.buffer)===v?"selected":""}>${v}%</option>`).join("")}</select></div></div>
+   <p style="margin:12px 0 0">First tee ${S.tee}. <b>Leave by ${fmtT(leave)}.</b></p>
+   <div class="lbl" style="margin-top:14px">Your warm-up plan</div><p class="small mut" style="margin:0 0 6px">The times are planning assumptions. Untick anything the club doesn’t offer.</p>
+   ${[["range","Driving range"],["chip","Chipping and pitching"],["putt","Putting green"],["bunker","Bunker practice"]].map(w=>`<div class="chk" style="padding:8px 0"><input type="checkbox" id="w-${w[0]}" ${S.warm[w[0]]?"checked":""} data-bind="warm" data-v="${w[0]}"><label for="w-${w[0]}">${w[1]}</label></div>`).join("")}</div>
+  <div class="card"><div class="lbl">Your morning</div><div class="step"><b class="t">${fmtT(leave)}</b><span><b>Leave</b></span></div>${tl}<div class="step"><b class="t">${S.tee}</b><span><b>First tee</b></span></div></div>`;
+}
+
+function seg(k,opts,cur){return `<div class="seg" role="group">${opts.map(o=>`<button class="${String(cur)===String(o[0])?"on":""}" data-act="set" data-k="${k}" data-v="${o[0]}">${o[1]}</button>`).join("")}</div>`}
+function viewSettings(){
+  return `${subHead("Settings")}
+  <div class="card"><div class="lbl">Competition mode</div>
+   <p class="small mut" style="margin:0 0 8px">Hides club advice (the club panel, plays-like yardage, aim-off, club choice and Rate my bag) and all wind speeds, directions and wind arrows. Rain, temperature and safety warnings stay. Under Rule 4.3a, forecast information is allowed during a round but a device recommending clubs is not. Your Committee’s local rules and competition conditions have the final say. <a href="https://www.randa.org/sw/rog/the-rules-of-golf/rule-4" target="_blank" rel="noopener">Rule 4</a></p>
+   <div class="setrow"><b>Competition mode</b><div style="margin:8px 0 0">${seg("comp",[["false","Off"],["true","On"]],S.comp)}</div></div>
+   <div class="setrow"><b>Switch on automatically during my round</b><div class="small mut">Uses this device’s clock, from 15 minutes before your tee time until the round is due to finish.</div><div style="margin:8px 0 0">${seg("compauto",[["false","Off"],["true","On"]],S.compAuto)}</div></div></div>
+  <div class="card"><div class="lbl">Your game</div>
+   <div class="setrow"><b>Shot shape</b><div style="margin:8px 0 0">${seg("shape",[["draw","Draw"],["straight","Straight"],["fade","Fade"]],S.shape)}</div></div>
+   <div class="setrow"><b>Ball flight</b><div style="margin:8px 0 0">${seg("flight",[["high","High"],["mid","Mid"],["low","Low"]],S.flight)}</div></div>
+   <div class="setrow"><b>Plan for gusts</b><div style="margin:8px 0 0">${seg("gust",[["false","Average wind"],["true","Gust speed"]],S.gust)}</div></div></div>
+  <div class="card"><div class="lbl">Units</div>
+   <div class="setrow"><b>Temperature and rain</b><div style="margin:8px 0 0">${seg("ut",[["F","°F · in"],["C","°C · mm"]],S.u.t)}</div></div>
+   <div class="setrow"><b>Wind</b><div style="margin:8px 0 0">${seg("uw",[["mph","mph"],["kph","km/h"],["kt","knots"]],S.u.w)}</div></div>
+   <div class="setrow"><b>Distance</b><div style="margin:8px 0 0">${seg("ud",[["yd","Yards"],["m","Meters"]],S.u.d)}</div></div></div>
+  <div class="card"><div class="lbl">Round</div>
+   <div class="setrow"><b>Group size</b><div style="margin:8px 0 0">${seg("group",[[2,"Twosome"],[3,"Threesome"],[4,"Foursome"]],S.group)}</div></div></div>
+  <div class="card"><div class="lbl">Appearance</div>
+   <div class="setrow"><b>Theme</b><div style="margin:8px 0 0">${seg("theme",[["auto","Auto"],["light","Light"],["dark","Dark"]],S.theme)}</div></div>
+   <div class="setrow"><b>Text size</b><div style="margin:8px 0 0">${seg("size",[[0,"Standard"],[1,"Large"],[2,"Largest"]],S.size)}</div></div></div>
+  <div class="card"><div class="lbl">Forecast source</div><div class="setrow" style="padding-top:0"><div style="margin:0 0 8px">${seg("live",[["true","Live forecast"],["false","Demo"]],S.live)}</div><div class="small mut">Live data is Open-Meteo for the course location, up to 16 days ahead. Demo uses the simulated days below.</div></div><div class="lbl" style="margin-top:6px">Demo days</div>
+   <div class="seg" style="flex-direction:column">${Object.keys(SC).map(k=>`<button class="${S.scen===k?"on":""}" data-act="set" data-k="scen" data-v="${k}" style="text-align:left;padding:0 16px">${SC[k].n}</button>`).join("")}</div></div>
+  <p class="small" style="margin:18px 4px"><a href="#feedback" data-act="fb" data-t="forecast">Send feedback</a> · <a href="#organiser">Tournament organiser tools</a></p>`;
+}
+
+function viewOrganiser(){
+  const c=course(),sn=sun(c,S.date),o=S.org,N=clamp(Number(o.groups)||1,1,100),step=clamp(Number(o.interval)||10,5,20)/60,first=parseT(S.tee);
+  const idxs=[...new Set([0,Math.floor((N-1)/4),Math.floor((N-1)/2),Math.floor(3*(N-1)/4),N-1])];
+  const rows=idxs.map(i=>{const tee=first+i*step,r=roundSum(tee),fl=[];
+    if(r.gust>=o.gustLimit)fl.push("Gusts over limit");if(r.peak>=o.rainLimit)fl.push("Heavy rain");if(r.end>sn.set-0.25)fl.push("Finishes near dusk");
+    return{i,tee,r,fl}});
+  const A=alerts(roundSum(first),c,sn),a0=rows[0].r,a1=rows[rows.length-1].r;
+  const sum=`${c.n}, ${longDate(S.date)}. First tee ${fmtT(first)}, last group ${fmtT(first+(N-1)*step)} (${N} groups, ${n0(step*60)}-minute intervals). Early wave: ${fW(a0.spd)} from ${card(a0.dir)}, gusts ${fW(a0.gust)}. Late wave: ${fW(a1.spd)} from ${card(a1.dir)}, gusts ${fW(a1.gust)}. Sunset about ${fmtT(sn.set)}.`;
+  const diff=a1.spd-a0.spd;
+  return `${subHead("Organiser","settings")}
+  <div class="card"><div class="lbl">Field</div>
+   <div class="grid2"><div><div class="lbl">Groups</div><input type="number" inputmode="numeric" min="1" max="100" value="${o.groups}" data-bind="org" data-v="groups" aria-label="Number of groups"></div>
+   <div><div class="lbl">Interval (min)</div><input type="number" inputmode="numeric" min="5" max="20" value="${o.interval}" data-bind="org" data-v="interval" aria-label="Tee interval in minutes"></div>
+   <div><div class="lbl">Gust limit (mph)</div><input type="number" inputmode="numeric" min="10" max="80" value="${o.gustLimit}" data-bind="org" data-v="gustLimit" aria-label="Committee gust limit in mph"></div>
+   <div><div class="lbl">Rain limit (mm/h)</div><input type="number" inputmode="decimal" step="0.5" min="0.5" max="10" value="${o.rainLimit}" data-bind="org" data-v="rainLimit" aria-label="Committee rain limit in mm per hour"></div></div>
+   <p class="small mut" style="margin:10px 0 0">First tee ${S.tee} on the home page. Limits are your Committee’s own thresholds; this tool only flags them.</p></div>
+  ${A.list.map(a=>`<div class="alert ${a.l}"><div class="tag">${a.tag}</div><div><b>${esc(a.t)}</b><span class="small mut">${esc(a.d)}</span></div></div>`).join("")}
+  <div class="card"><div class="lbl">Conditions across the draw</div><table><thead><tr><th>Group</th><th>Tee</th><th class="n">Wind</th><th class="n">Gust</th><th class="n">Rain</th></tr></thead><tbody>
+   ${rows.map(x=>`<tr><td>${x.i+1}</td><td>${fmtT(x.tee)}</td><td class="n">${fW(x.r.spd)}</td><td class="n">${fW(x.r.gust)}</td><td class="n">${fR(x.r.mm)}</td></tr>${x.fl.length?`<tr><td colspan="5" class="small" style="color:var(--watch)"><b>Flag:</b> ${x.fl.join(" · ")}</td></tr>`:""}`).join("")}</tbody></table>
+   <p style="margin:12px 0 0"><b>Draw difference:</b> the last wave plays in a wind about ${fW(Math.abs(diff))} ${diff>=0?"stronger":"lighter"} than the first.</p></div>
+  <div class="card"><div class="lbl">Summary to share</div><p id="osum" class="small">${esc(sum)}</p><button class="btn sm" data-act="copy">Copy summary</button> <span class="small mut" id="cmsg"></span></div>`;
+}
+
+const VIEWS={feedback:viewFeedback,home:viewHome,course:viewCourse,holes:viewHoles,clubs:viewClubs,bag:viewBag,kit:viewKit,travel:viewTravel,settings:viewSettings,organiser:viewOrganiser};
+const route=()=>{const r=(location.hash||"#home").slice(1);return VIEWS[r]?r:"home"};
+function applyLook(){
+  const rt=document.documentElement;if(S.theme==="auto")rt.removeAttribute("data-theme");else rt.setAttribute("data-theme",S.theme);
+  rt.style.fontSize=[16,18,20][Number(S.size)||0]+"px";
+}
+function initOpenHole(d){
+  const R=roundSum(),N=layoutFor(course()).holes.length,i=+d.dataset.hole,t=R.tee+R.dur*(i+0.5)/N,box=d.querySelector(".mapbox");
+  if(box)makeMap(box,{mode:"hole",idx:i,timeFn:()=>t});
+}
+function initMapsForRoute(){
+  clearMaps();const r=route();
+  if(r==="home"){const b=document.getElementById("h1box");if(b)makeMap(b,{mode:"hole",idx:HV,timeFn:()=>MT});const rb=document.getElementById("rnbox");if(rb)makeRain(rb);mapReadout()}
+  else if(r==="course"){const b=document.getElementById("cbox");if(b)makeMap(b,{mode:"course",timeFn:()=>MT});mapReadout()}
+  else if(r==="holes"){const d=document.querySelector("details[data-hole][open]");if(d)initOpenHole(d)}
+}
+function render(keepScroll){
+  const y=window.scrollY,r=route(),app=document.getElementById("app");applyLook();clearMaps();
+  try{app.innerHTML=VIEWS[r]()}catch(e){app.innerHTML='<div class="card"><b>Something went wrong.</b><p class="small mut">'+esc(e&&e.message||e)+'</p><a class="btn" href="#home">Back to start</a></div>'}
+  const cm=comp();document.getElementById("hin").innerHTML=`<a class="logo" href="#home" aria-label="Windward home">${LOGO}Windward</a><div style="display:flex;gap:8px;align-items:center"><button class="cpill${cm?" on":""}" data-act="comp" aria-pressed="${cm}">Competition ${cm?(S.comp?"on":"auto"):"off"}</button>${r==="home"?`<a class="iconbtn" href="#settings" aria-label="Settings">${ico("gear")}</a>`:`<a class="iconbtn" href="#home" aria-label="Home">${ico("wind")}</a>`}</div>`;
+  document.title=r==="home"?"Windward: pre-round conditions for golfers":"Windward · "+r;
+  loadLive(course());if(["home","course","holes","clubs"].includes(r))loadReal(course());
+  initMapsForRoute();
+  window.scrollTo(0,keepScroll?y:0);
+}
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,v=b.dataset.v;
+  if(a==="loc"){e.preventDefault();try{navigator.geolocation.getCurrentPosition(p=>{S.loc=[p.coords.latitude,p.coords.longitude];S.locMsg="";render(true)},()=>{S.loc=null;S.locMsg="Location is not available here, so featured courses are shown.";render(true)},{timeout:8000})}catch(x){S.locMsg="Location is not available here, so featured courses are shown.";render(true)}return}
+  if(a==="pick"){HV=0;S.course=v;S.search=false;S.q="";MT=0;save();render();return}
+  if(a==="addcustom"){const la=parseFloat(document.getElementById("clat").value),lo=parseFloat(document.getElementById("clon").value),er=document.getElementById("cerr");
+    if(!(la>=-90&&la<=90)||!(lo>=-180&&lo<=180)||isNaN(la)||isNaN(lo)){er.textContent="Enter valid latitude and longitude.";return}
+    const nm=(S.q||"Custom course").trim().slice(0,60),id="c"+hash(nm+la+lo);
+    if(!S.custom.find(x=>x.id===id))S.custom.push({id,n:nm,place:"Custom",cc:"CUS",lat:la,lon:lo,tz:Math.abs(lo)<8&&la>35?"uk":lo<-100?"pt":lo<-60?"et":"uk"});
+    HV=0;S.course=id;S.search=false;S.q="";MT=0;save();render();return}
+  if(a==="hole"){const R=roundSum(),N=layoutFor(course()).holes.length;HV=(HV+Number(v)+N)%N;MT=holeTime(HV,R,N);const sl=document.getElementById("mt");if(sl)sl.value=MT;flickMap();return}
+  if(a==="filter")S.filter=v;
+  else if(a==="comp")S.comp=!S.comp;
+  else if(a==="appr")S.appr=Number(v);
+  else if(a==="preset"){S.bag=PRESETS[v].ids.slice();S.rating=null}
+  else if(a==="rate")S.rating=rateBag();
+  else if(a==="apply"){const ad=b.dataset.add,rm=b.dataset.rm;if(rm)S.bag=S.bag.filter(x=>x!==rm);if(ad&&!S.bag.includes(ad)&&S.bag.length<14)S.bag.push(ad);S.rating=rateBag()}
+  else if(a==="fb"){S.fbType=b.dataset.t||"forecast";S.fbHole=b.dataset.h!==undefined?Number(b.dataset.h):null;location.hash="feedback";return}
+  else if(a==="fbcopy"||a==="fbsend"){const t=fbText(),m=document.getElementById("fbmsg"),say=x=>{if(m)m.textContent=x},cp=()=>{try{navigator.clipboard.writeText(t).then(()=>say("Copied. Paste it into an email or message."),()=>say("Select the preview below and copy it."))}catch(x){say("Select the preview below and copy it.")}};
+    if(a==="fbcopy"){cp();return}
+    if(FEEDBACK_EMAIL){location.href="mailto:"+FEEDBACK_EMAIL+"?subject="+encodeURIComponent("Windward feedback")+"&body="+encodeURIComponent(t);return}
+    if(navigator.share){navigator.share({title:"Windward feedback",text:t}).catch(()=>{})}else cp();return}
+  else if(a==="copycite"){const t=S.rating?S.rating.brands.filter(x=>!x.gen).map(x=>citeOf(x.pos)+"\n"+citeOf(x.neg)).join("\n"):"",m=document.getElementById("citemsg");
+    try{navigator.clipboard.writeText(t).then(()=>{if(m)m.textContent="Copied."},()=>{if(m)m.textContent="Select the list above to copy."})}catch(x){if(m)m.textContent="Select the list above to copy."}return}
+  else if(a==="copy"){const t=document.getElementById("osum").textContent,m=document.getElementById("cmsg");
+    try{navigator.clipboard.writeText(t).then(()=>{m.textContent="Copied."},()=>{m.textContent="Select the text above to copy."})}catch(x){m.textContent="Select the text above to copy."}return}
+  else if(a==="set"){const k=b.dataset.k;
+    if(k==="shape")S.shape=v;else if(k==="flight")S.flight=v;else if(k==="gust")S.gust=v==="true";
+    else if(k==="ut")S.u.t=v;else if(k==="uw")S.u.w=v;else if(k==="ud")S.u.d=v;else if(k==="group")S.group=Number(v);
+    else if(k==="comp")S.comp=v==="true";else if(k==="compauto")S.compAuto=v==="true";
+    else if(k==="live"){S.live=v==="true"}
+    else if(k==="theme")S.theme=v;else if(k==="size")S.size=Number(v);else if(k==="scen"){S.scen=v;MT=0}
+    S.rating=null;}
+  save();render(true);
+});
+function flickMap(){
+  const b=document.getElementById("h1box");if(!b)return;clearMaps();
+  makeMap(b,{mode:"hole",idx:HV,timeFn:()=>MT});const rb=document.getElementById("rnbox");if(rb)makeRain(rb);mapReadout();
+}
+let TX=null;
+document.addEventListener("touchstart",e=>{TX=e.target.closest&&e.target.closest("#h1box")&&e.touches[0]?e.touches[0].clientX:null},{passive:true});
+document.addEventListener("touchend",e=>{if(TX===null)return;const dx=(e.changedTouches[0]?e.changedTouches[0].clientX:TX)-TX;TX=null;
+  if(Math.abs(dx)>50){const R=roundSum(),N=layoutFor(course()).holes.length;HV=(HV+(dx<0?1:-1)+N)%N;MT=holeTime(HV,R,N);const sl=document.getElementById("mt");if(sl)sl.value=MT;flickMap()}},{passive:true});
+document.addEventListener("input",e=>{
+  const t=e.target,k=t.dataset&&t.dataset.live;if(!k)return;
+  if(k==="mt"){MT=Number(t.value);mapReadout();redrawAll()}
+  else if(k==="fbm"){S.fbMsg=t.value;const pv=document.getElementById("fbprev");if(pv)pv.textContent=fbText()}
+  else if(k==="q"){S.q=t.value;const r=document.getElementById("res");if(r)r.innerHTML=searchRes(S.q)}
+});
+document.addEventListener("toggle",e=>{
+  const d=e.target;if(!d||!d.matches||!d.matches("details[data-hole]"))return;
+  if(d.open){document.querySelectorAll("details[data-hole][open]").forEach(o=>{if(o!==d)o.open=false});initOpenHole(d)}
+  else{const cv=d.querySelector("canvas");if(cv)MAPS.delete(cv)}
+},true);
+document.addEventListener("change",e=>{
+  const t=e.target,k=t.dataset&&t.dataset.bind;if(!k)return;const v=t.dataset.v;
+  switch(k){
+    case"course":if(t.value==="__other"){S.search=true}else{HV=0;S.course=t.value;S.search=false;MT=0;save()}break;
+    case"date":if(t.value)S.date=t.value;break;
+    case"tee":if(t.value){S.tee=t.value;MT=0}break;
+    case"fbtype":S.fbType=t.value;break;
+    case"fbdiag":S.fbDiag=t.checked;break;
+    case"chk":S.checks[v]=t.checked;save();return;
+    case"club":if(t.checked){if(S.bag.length<14&&!S.bag.includes(v))S.bag.push(v)}else S.bag=S.bag.filter(x=>x!==v);S.rating=null;save();break;
+    case"carry":{const n=Number(t.value);S.club[v].carry=clamp(isFinite(n)&&n>0?toYd(n):0,0,400);S.rating=null;save();break}
+    case"brand":S.club[v].brand=t.value;save();return;
+    case"model":S.club[v].model=t.value.trim().slice(0,40);save();return;
+    case"age":S.club[v].age=t.value===""?"":String(clamp(Number(t.value)||0,0,40));save();return;
+    case"drive":S.drive=clamp(Number(t.value)||0,0,600);save();break;
+    case"buffer":S.buffer=Number(t.value);save();break;
+    case"warm":S.warm[v]=t.checked;save();break;
+    case"need":S.needs[v]=t.checked;save();break;
+    case"org":S.org[v]=Number(t.value)||S.org[v];save();break;
+  }
+  render(true);
+});
+let rz=0;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>initMapsForRoute(),200)});
+window.addEventListener("hashchange",()=>render());
+render();
+</script>
+<script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){try{navigator.serviceWorker.register("sw.js")}catch(e){}})}</script>
+</body>
+</html>
