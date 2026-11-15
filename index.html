@@ -133,6 +133,16 @@ blockquote{margin:6px 0;padding:0 0 0 12px;border-left:3px solid var(--acc);font
 .cpill.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
 textarea{width:100%;min-height:130px;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;resize:vertical}
 .cites{margin-top:12px;border-top:1px solid var(--line)}.cites summary{min-height:44px}.cites ol{padding-left:18px;margin:6px 0 10px;word-break:break-word}.cites li{margin:0 0 6px}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}15%{opacity:.9}80%{opacity:.9}100%{transform:translate(var(--dx),var(--dy));opacity:0}}
+@keyframes fall{from{transform:translate(0,-30px)}to{transform:translate(var(--rx),180px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ringp{50%{transform:scale(1.2)}}
+svg.mv{display:block;width:100%;height:auto}
+svg.mv .a{animation:drift 3s linear infinite;opacity:.9}
+svg.mv .d{animation:fall .7s linear infinite}
+svg.mv .rays{animation:spin 24s linear infinite}
+svg.mv .ring{transform-box:fill-box;transform-origin:center;animation:ringp 1.3s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){svg.mv .a,svg.mv .d,svg.mv .rays,svg.mv .ring{animation:none}svg.mv .d{transform:translateY(var(--sy))}}
 </style>
 </head>
 <body>
@@ -347,9 +357,9 @@ const projM=(lat0,lon0)=>(la,lo)=>[(lo-lon0)*Math.cos(rad(lat0))*111320,(la-lat0
 const brg=(a,b)=>norm(deg(Math.atan2(b[0]-a[0],b[1]-a[1])));
 function buildReal(c,j){
   const P=projM(c.lat,c.lon),els=(j&&j.elements)||[],hw=[],areas=[];
-  els.forEach(e=>{if(e.type!=="way"||!e.geometry||!e.tags)return;const g=e.tags.golf,pts=e.geometry.map(n=>P(n.lat,n.lon));
-    if(g==="hole"){const ref=parseInt(e.tags.ref,10);if(ref>=1&&ref<=18&&pts.length>=2)hw.push({ref,pts,ll:e.geometry,tags:e.tags})}
-    else if(g&&pts.length>=3)areas.push({k:/water/.test(g)?"water":g,pts})});
+  els.forEach(e=>{if(!e||e.type!=="way"||!Array.isArray(e.geometry)||!e.tags)return;const geo=e.geometry.filter(n=>n&&isFinite(n.lat)&&isFinite(n.lon)),g=e.tags.golf,pts=geo.map(n=>P(n.lat,n.lon));
+    if(g==="hole"){const ref=parseInt(e.tags.ref,10);if(ref>=1&&ref<=18&&pts.length>=2&&Math.hypot(pts[0][0]-pts[pts.length-1][0],pts[0][1]-pts[pts.length-1][1])>20)hw.push({ref,pts,ll:geo,tags:e.tags})}
+    else if(g&&pts.length>=3&&areas.length<4000)areas.push({k:/water/.test(g)?"water":g,pts})});
   const out=[];let prev=null;
   for(let k=1;k<=18;k++){
     const cand=hw.filter(h=>h.ref===k);if(!cand.length)continue;
@@ -363,8 +373,8 @@ function buildReal(c,j){
     return{p:par,y:yd,b:Math.round(brg(tee,gr)),bt:Math.round(brg(tee,mid)),ba:Math.round(brg(mid,gr)),el:0,sh:0.92,tee,green:gr,line:pts,i,tll:w.ll[0],gll:w.ll[n-1]}});
   return{src:"real",holes,areas};
 }
-async function getJson(url){
-  const ac=typeof AbortController!=="undefined"?new AbortController():null,t=setTimeout(()=>{if(ac)ac.abort()},20000);
+async function getJson(url,ms){
+  const ac=typeof AbortController!=="undefined"?new AbortController():null,t=setTimeout(()=>{if(ac)ac.abort()},ms||20000);
   try{const r=await fetch(url,ac?{signal:ac.signal}:{});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(t)}
 }
 async function addElev(d){
@@ -374,26 +384,31 @@ async function addElev(d){
   if(j&&Array.isArray(j.elevation)&&j.elevation.length===pts.length)d.holes.forEach((h,i)=>{h.el=Math.round(j.elevation[2*i+1]-j.elevation[2*i])});
 }
 let rsoon=0;function renderSoon(){clearTimeout(rsoon);rsoon=setTimeout(()=>render(true),60)}
+const OVP=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 async function loadReal(c){
   if(REAL[c.id])return;REAL[c.id]={status:"loading"};
   try{
-    let data=null;
-    try{const o=JSON.parse(localStorage.getItem("windward-real-"+c.id)||"null");if(o&&Date.now()-o.t<2592e6)data=o.data}catch(e){}
+    let data=null,cached=false;
+    try{const o=JSON.parse(localStorage.getItem("windward-real-"+c.id)||"null");if(o&&Date.now()-o.t<2592e6&&o.data&&Array.isArray(o.data.holes)&&o.data.holes.length>=9&&o.data.holes.every(h=>h&&Array.isArray(h.line)&&h.line.length>=2&&h.tee&&h.green)){data=o.data;cached=true}}catch(e){}
     if(!data){
       const q='[out:json][timeout:25];(way["golf"="hole"](around:2000,'+c.lat+','+c.lon+');way["golf"~"^(green|fairway|tee|bunker|water_hazard|lateral_water_hazard)$"](around:2000,'+c.lat+','+c.lon+'););out geom tags;';
-      const j=await getJson("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q));
+      let j=null,last=null;
+      for(const u of OVP){try{j=await getJson(u+"?data="+encodeURIComponent(q),15000);break}catch(e){last=e}}
+      if(!j)throw last||new Error("No response from the map server");
       data=buildReal(c,j);
-      if(data){try{await addElev(data)}catch(e){}try{localStorage.setItem("windward-real-"+c.id,JSON.stringify({t:Date.now(),data}))}catch(e){}}
     }
-    REAL[c.id]=data?{status:"real",data}:{status:"failed",why:"Too few holes mapped"};
+    if(data){
+      REAL[c.id]={status:"real",data};renderSoon();
+      if(!cached){try{await addElev(data)}catch(e){}try{localStorage.setItem("windward-real-"+c.id,JSON.stringify({t:Date.now(),data}))}catch(e){}renderSoon()}
+    }else REAL[c.id]={status:"failed",why:"Too few holes are mapped for this course"};
   }catch(e){REAL[c.id]={status:"failed",why:String(e&&e.message||e)}}
-  if(c.id===S.course)renderSoon();
+  if(c.id===S.course&&REAL[c.id].status!=="real")renderSoon();
 }
 function layoutBadge(){
   const r=REAL[S.course];
   if(r&&r.status==="real")return '<span class="badge ok">Real course layout · OpenStreetMap contributors</span>';
   if(r&&r.status==="loading")return '<span class="badge">Loading real course layout…</span>';
-  return '<span class="badge">Illustrative layout. Real course data loads in the app.</span>';
+  return '<span class="badge">Illustrative layout. Real course data unavailable'+(r&&r.why?' ('+esc(String(r.why).slice(0,70))+')':'')+'.</span>';
 }
 
 /* ================= bag & shot maths ================= */
@@ -521,96 +536,101 @@ const IC={
 const ico=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 const LOGO='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--acc)" stroke-width="2"/><g transform="rotate(45 16 16)"><path d="M16 5l6 9h-4v9h-4v-9h-4z" fill="var(--acc)"/></g></svg>';
 
-/* ================= maps (canvas): hole maps, course map, rain ================= */
-let RAF=0,MT=0;const MAPS=new Map();
-const reduced=()=>{try{return window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+/* ================= maps (SVG): hole maps, course map, rain ================= */
+let MT=0;const MAPS=new Map(),DBG=[];
+const dbg=e=>{DBG.push(String(e&&e.message||e).slice(0,160));if(DBG.length>10)DBG.shift()};
+window.addEventListener("error",e=>dbg(e.message||"error"));
 const spCol=v=>v<10?"#B7F7D2":v<20?"#E8F27A":v<30?"#FFB547":"#FF6B5E";
 const rainWord=w=>w.mm<0.05?"Dry":w.mm<0.5?"Light rain":w.mm<2?"Moderate rain":"Heavy rain";
-function clearMaps(){MAPS.clear();cancelAnimationFrame(RAF);RAF=0}
-function startLoop(){if(RAF||reduced())return;const tick=ts=>{RAF=0;let any=false;MAPS.forEach((m,cv)=>{if(!cv.isConnected){MAPS.delete(cv);return}any=true;m.draw(ts)});if(any)RAF=requestAnimationFrame(tick)};RAF=requestAnimationFrame(tick)}
-function addMap(cv,m){MAPS.set(cv,m);m.draw(0);startLoop()}
-function redrawAll(){MAPS.forEach(m=>m.draw(0))}
+function clearMaps(){MAPS.clear()}
+function redrawAll(){MAPS.forEach(m=>{try{m.update()}catch(e){dbg(e)}})}
 function along(pts,f){
   let tot=0;for(let i=1;i<pts.length;i++)tot+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
   let d=tot*f;for(let i=1;i<pts.length;i++){const s=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
     if(d<=s||i===pts.length-1){const u=s?Math.min(1,d/s):0;return[pts[i-1][0]+(pts[i][0]-pts[i-1][0])*u,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*u,brg(pts[i-1],pts[i])]}d-=s}
   return[pts[0][0],pts[0][1],0];
 }
-function makeMap(box,spec){
-  const cv=box.querySelector("canvas");if(!cv||!cv.getContext)return;const ctx=cv.getContext("2d");if(!ctx)return;
-  const c=course(),L=layoutFor(c),N=L.holes.length,dpr=Math.min(window.devicePixelRatio||1,2),isHole=spec.mode==="hole",hole=isHole?L.holes[spec.idx]:null;
-  if(isHole&&!hole)return;
+function mapFail(box,e){
+  dbg(e);box.style.height="auto";
+  box.innerHTML='<div style="padding:16px;color:#EAF3EE"><b>This map couldn’t be drawn.</b><p class="small" style="margin:6px 0 10px;opacity:.85">'+esc(String(e&&e.message||e))+'</p><button class="btn sm" data-act="fb" data-t="broken">Report this</button></div>';
+}
+const f1=x=>Number(x).toFixed(1);
+function makeMap(box,spec){try{buildMap(box,spec)}catch(e){mapFail(box,e)}}
+function buildMap(box,spec){
+  const old=box.querySelector("canvas"),label=old?old.getAttribute("aria-label"):(box.dataset.label||"Wind map");box.dataset.label=label;if(old)old.remove();
+  const prev=box.querySelector("svg.mv");if(prev)prev.remove();
+  const c=course(),L=layoutFor(c),N=L.holes.length,isHole=spec.mode==="hole",hole=isHole?L.holes[spec.idx]:null;
+  if(!N)throw new Error("The course layout has no holes");
+  if(isHole&&!hole)throw new Error("Hole "+(spec.idx+1)+" is not in the layout");
   const W=Math.max(260,box.clientWidth||320),H=isHole?Math.round(W*1.3):Math.round(W*0.74);
   /* hole maps are rotated so the tee is at the bottom and the green at the top; the course map stays north-up */
   const th=isHole?rad(hole.b):0,sn=Math.sin(th),cs=Math.cos(th),rot=(x,y)=>[x*cs-y*sn,x*sn+y*cs];
-  const pts=isHole?hole.line.concat([hole.tee,hole.green]):L.holes.reduce((a,h)=>a.concat(h.line),[]);
+  const ok=p=>p&&isFinite(p[0])&&isFinite(p[1]);
+  const pts=(isHole?hole.line.concat([hole.tee,hole.green]):L.holes.reduce((a,h)=>a.concat(h.line),[])).filter(ok);
+  if(!pts.length)throw new Error("No hole geometry to draw");
   const bbw=bboxOf(pts),rp=pts.map(p=>rot(p[0],p[1])),bb=bboxOf(rp),bw=Math.max(bb.x1-bb.x0,150),bh=Math.max(bb.y1-bb.y0,120),cx=(bb.x0+bb.x1)/2,cy=(bb.y0+bb.y1)/2;
   const padX=isHole?42:28,padT=isHole?60:46,padB=isHole?46:34,sc=Math.min((W-2*padX)/bw,(H-padT-padB)/bh),oy=(padT-padB)/2;
-  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+"px";box.style.height=H+"px";
-  const P=(x,y)=>{const r=rot(x,y);return[(W/2+(r[0]-cx)*sc)*dpr,(H/2+oy-(r[1]-cy)*sc)*dpr]};
-  const bg=document.createElement("canvas");bg.width=cv.width;bg.height=cv.height;const b=bg.getContext&&bg.getContext("2d");if(!b)return;
-  b.lineCap="round";b.lineJoin="round";
-  const poly=(p,fill)=>{b.fillStyle=fill;b.beginPath();p.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.closePath();b.fill()};
+  const P=(x,y)=>{const r=rot(x,y);return[W/2+(r[0]-cx)*sc,H/2+oy-(r[1]-cy)*sc]};
+  const pl=a=>a.filter(ok).map(q=>{const z=P(q[0],q[1]);return f1(z[0])+","+f1(z[1])}).join(" ");
   const showH=isHole?[hole]:L.holes;
-  const g0=b.createLinearGradient(0,0,0,bg.height);g0.addColorStop(0,"#12331F");g0.addColorStop(1,"#0A1D13");b.fillStyle=g0;b.fillRect(0,0,bg.width,bg.height);
-  const near=a=>{if(L.src==="illus")return isHole?a.h===spec.idx:true;const q=a.pts[0];return q[0]>bbw.x0-350&&q[0]<bbw.x1+350&&q[1]>bbw.y0-350&&q[1]<bbw.y1+350};
+  const near=a=>{if(!a.pts||!a.pts.length)return false;if(L.src==="illus")return isHole?a.h===spec.idx:true;const q=a.pts[0];return q[0]>bbw.x0-350&&q[0]<bbw.x1+350&&q[1]>bbw.y0-350&&q[1]<bbw.y1+350};
   const AR=L.areas.filter(near),colr={water:"#2F7FB5",fairway:"#2E8B57",tee:"#43A870",bunker:"#E6D7A3",green:"#8CF0AD"};
-  if(L.src==="illus"||!AR.some(a=>a.k==="fairway")){showH.forEach(h=>{b.strokeStyle="#2E8B57";b.lineWidth=Math.max(5,30*sc)*dpr;b.beginPath();h.line.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.stroke()})}
-  ["water","fairway","tee","bunker","green"].forEach(k=>AR.filter(a=>a.k===k).forEach(a=>poly(a.pts,colr[k])));
+  let g='<defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12331F"/><stop offset="1" stop-color="#0A1D13"/></linearGradient></defs><rect width="'+W+'" height="'+H+'" fill="url(#mg)"/>';
+  if(L.src==="illus"||!AR.some(a=>a.k==="fairway"))showH.forEach(h=>{g+='<polyline points="'+pl(h.line)+'" fill="none" stroke="#2E8B57" stroke-width="'+f1(Math.max(5,30*sc))+'" stroke-linecap="round" stroke-linejoin="round"/>'});
+  ["water","fairway","tee","bunker","green"].forEach(k=>AR.filter(a=>a.k===k).forEach(a=>{g+='<polygon points="'+pl(a.pts)+'" fill="'+colr[k]+'"/>'}));
   showH.forEach((h,hi)=>{
-    b.strokeStyle="rgba(255,255,255,.65)";b.lineWidth=1.6*dpr;b.setLineDash([6*dpr,6*dpr]);b.beginPath();
-    h.line.forEach((q,i)=>{const z=P(q[0],q[1]);i?b.lineTo(z[0],z[1]):b.moveTo(z[0],z[1])});b.stroke();b.setLineDash([]);
-    const t=P(h.tee[0],h.tee[1]),g=P(h.green[0],h.green[1]);
+    g+='<polyline points="'+pl(h.line)+'" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.6" stroke-dasharray="6 6"/>';
+    if(!ok(h.tee)||!ok(h.green))return;
+    const t=P(h.tee[0],h.tee[1]),gr=P(h.green[0],h.green[1]);
     if(isHole){
-      b.fillStyle="#fff";b.fillRect(t[0]-6*dpr,t[1]-6*dpr,12*dpr,12*dpr);
-      b.fillStyle="#fff";b.font="700 "+(10*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="top";b.fillText("TEE",t[0],t[1]+9*dpr);
-      b.strokeStyle="#fff";b.lineWidth=2*dpr;b.beginPath();b.moveTo(g[0],g[1]);b.lineTo(g[0],g[1]-20*dpr);b.stroke();b.fillStyle="#FF6B5E";b.beginPath();b.moveTo(g[0],g[1]-20*dpr);b.lineTo(g[0]+12*dpr,g[1]-15*dpr);b.lineTo(g[0],g[1]-10*dpr);b.closePath();b.fill();
-      [0.3,0.55,0.8].forEach(f=>{const a=along(h.line,f),z=P(a[0],a[1]);b.save();b.translate(z[0],z[1]);b.rotate(rad(a[2])-th);b.strokeStyle="#fff";b.lineWidth=2.4*dpr;b.beginPath();b.moveTo(-6*dpr,4*dpr);b.lineTo(0,-4*dpr);b.lineTo(6*dpr,4*dpr);b.stroke();b.restore()});
+      g+='<rect x="'+f1(t[0]-6)+'" y="'+f1(t[1]-6)+'" width="12" height="12" fill="#fff"/><text x="'+f1(t[0])+'" y="'+f1(t[1]+21)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">TEE</text>';
+      g+='<line x1="'+f1(gr[0])+'" y1="'+f1(gr[1])+'" x2="'+f1(gr[0])+'" y2="'+f1(gr[1]-20)+'" stroke="#fff" stroke-width="2"/><polygon points="'+f1(gr[0])+','+f1(gr[1]-20)+' '+f1(gr[0]+12)+','+f1(gr[1]-15)+' '+f1(gr[0])+','+f1(gr[1]-10)+'" fill="#FF6B5E"/>';
+      [0.3,0.55,0.8].forEach(f=>{const a=along(h.line.filter(ok),f),z=P(a[0],a[1]);g+='<path transform="translate('+f1(z[0])+' '+f1(z[1])+') rotate('+f1(a[2]-deg(th))+')" d="M-6 4 L0 -4 L6 4" fill="none" stroke="#fff" stroke-width="2.4"/>'});
     }else{
-      const a=along(h.line,0.5),z=P(a[0],a[1]);b.fillStyle="rgba(6,16,10,.8)";b.beginPath();b.arc(z[0],z[1]-9*dpr,7*dpr,0,7);b.fill();
-      b.fillStyle="#fff";b.font="700 "+(9*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="middle";b.fillText(String(hi+1),z[0],z[1]-8.5*dpr);
+      const a=along(h.line.filter(ok),0.5),z=P(a[0],a[1]);
+      g+='<circle cx="'+f1(z[0])+'" cy="'+f1(z[1]-9)+'" r="7" fill="rgba(6,16,10,.8)"/><text x="'+f1(z[0])+'" y="'+f1(z[1]-5.5)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">'+(hi+1)+'</text>';
     }
   });
-  /* compass: the arrow points to where north is on this map */
-  const kx=bg.width-28*dpr,ky=bg.height-30*dpr,na=-th;b.fillStyle="rgba(6,16,10,.72)";b.beginPath();b.arc(kx,ky,21*dpr,0,7);b.fill();
-  b.save();b.translate(kx,ky);b.rotate(na);b.fillStyle="#fff";b.beginPath();b.moveTo(0,-10*dpr);b.lineTo(-4.5*dpr,0);b.lineTo(4.5*dpr,0);b.closePath();b.fill();b.restore();
-  b.fillStyle="#fff";b.font="800 "+(10*dpr)+"px -apple-system,Segoe UI,Roboto,Arial,sans-serif";b.textAlign="center";b.textBaseline="middle";b.fillText("N",kx+Math.sin(na)*15.5*dpr,ky-Math.cos(na)*15.5*dpr);
-  const parts=[],newP=()=>({x:Math.random()*cv.width,y:Math.random()*cv.height}),R=roundSum();
-  function draw(ts){
-    const t=spec.timeFn(),w=wx(t),spd=w.spd*(isHole?hole.sh:1),to=rad(norm(w.dir+180))-th;
-    ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(bg,0,0);
-    if(!isHole){const idx=t>=R.tee&&t<=R.end?clamp(Math.floor((t-R.tee)/R.dur*N),0,N-1):-1;if(idx>=0){const g=P(L.holes[idx].green[0],L.holes[idx].green[1]);ctx.strokeStyle="#C7F264";ctx.lineWidth=2.5*dpr;ctx.beginPath();ctx.arc(g[0],g[1],(13+2*Math.sin(ts/300))*dpr,0,7);ctx.stroke()}}
-    if(comp())return;
-    const n=clamp(Math.round(10+spd*0.9),10,38);while(parts.length<n)parts.push(newP());parts.length=n;
-    const gf=1+Math.min(.5,(w.gust-w.spd)/Math.max(w.spd,5)*.5)*Math.sin(ts/700),v=(0.3+spd*0.05)*gf*dpr*(reduced()?0:1),len=(8+spd*0.45)*dpr,col=spCol(spd);
-    ctx.shadowColor="rgba(0,0,0,.55)";ctx.shadowBlur=3*dpr;
-    parts.forEach(p=>{p.x+=Math.sin(to)*v;p.y-=Math.cos(to)*v;const m=30*dpr;
-      if(p.x<-m)p.x=cv.width+m;if(p.x>cv.width+m)p.x=-m;if(p.y<-m)p.y=cv.height+m;if(p.y>cv.height+m)p.y=-m;
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(to);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.globalAlpha=.9;ctx.lineWidth=2.2*dpr;ctx.lineCap="round";
-      ctx.beginPath();ctx.moveTo(0,len/2);ctx.lineTo(0,-len/2+3*dpr);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-len/2-2*dpr);ctx.lineTo(-4.5*dpr,-len/2+5*dpr);ctx.lineTo(4.5*dpr,-len/2+5*dpr);ctx.closePath();ctx.fill();ctx.restore()});
-    ctx.shadowBlur=0;
+  const kx=W-28,ky=H-30,na=-deg(th);
+  g+='<circle cx="'+kx+'" cy="'+ky+'" r="21" fill="rgba(6,16,10,.72)"/><polygon transform="translate('+kx+' '+ky+') rotate('+f1(na)+')" points="0,-10 -4.5,0 4.5,0" fill="#fff"/><text x="'+f1(kx+Math.sin(rad(na))*15.5)+'" y="'+f1(ky-Math.cos(rad(na))*15.5+3.5)+'" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">N</text>';
+  if(!isHole)g+='<circle class="ring" cx="-50" cy="-50" r="13" fill="none" stroke="#C7F264" stroke-width="2.5"/>';
+  g+='<g class="arw"></g>';
+  box.insertAdjacentHTML("afterbegin",'<svg class="mv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'" preserveAspectRatio="xMidYMid meet">'+g+'</svg>');
+  const svg=box.querySelector("svg.mv"),R=roundSum();
+  function update(){
+    const t=spec.timeFn(),w=wx(t),spd=w.spd*(isHole?hole.sh:1),to=norm(w.dir+180)-deg(th);
+    const ring=svg.querySelector(".ring");
+    if(ring){const idx=t>=R.tee&&t<=R.end?clamp(Math.floor((t-R.tee)/R.dur*N),0,N-1):-1,gp=idx>=0&&ok(L.holes[idx].green)?P(L.holes[idx].green[0],L.holes[idx].green[1]):[-50,-50];ring.setAttribute("cx",f1(gp[0]));ring.setAttribute("cy",f1(gp[1]))}
+    const ga=svg.querySelector(".arw");if(!ga)return;
+    if(comp()){ga.innerHTML="";return}
+    const n=clamp(Math.round(8+spd*0.7),8,30),ra=rng(hash(c.id+spec.mode+(spec.idx||0))),D=clamp(70+spd*3,70,170),T=D/(18+3*spd),len=8+spd*0.45,col=spCol(spd),dx=Math.sin(rad(to))*D,dy=-Math.cos(rad(to))*D;let h="";
+    for(let i=0;i<n;i++){const x=ra()*W,y=ra()*H,dl=-ra()*T;
+      h+='<g class="a" style="--dx:'+f1(dx)+'px;--dy:'+f1(dy)+'px;animation-duration:'+T.toFixed(2)+'s;animation-delay:'+dl.toFixed(2)+'s"><g transform="translate('+f1(x)+' '+f1(y)+') rotate('+f1(to)+')"><path d="M0 '+f1(len/2)+' L0 '+f1(-len/2+3)+'" stroke="'+col+'" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M0 '+f1(-len/2-2)+' L-4.5 '+f1(-len/2+5)+' L4.5 '+f1(-len/2+5)+'Z" fill="'+col+'"/></g></g>'}
+    ga.innerHTML=h;
   }
-  addMap(cv,{draw});
+  MAPS.set(svg,{update});update();
 }
-function makeRain(box){
-  const cv=box.querySelector("canvas");if(!cv||!cv.getContext)return;const ctx=cv.getContext("2d");if(!ctx)return;
-  const dpr=Math.min(window.devicePixelRatio||1,2),W=Math.max(260,box.clientWidth||320),H=130;
-  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+"px";box.style.height=H+"px";
-  const drops=[],cloud=(x,y,s,a)=>{ctx.fillStyle="rgba(214,228,238,"+a+")";[[0,0,22],[22,-8,26],[48,0,20],[24,8,26]].forEach(p=>{ctx.beginPath();ctx.arc((x+p[0]*s)*dpr,(y+p[1]*s)*dpr,p[2]*s*dpr,0,7);ctx.fill()})};
-  function draw(ts){
-    const w=wx(MT),mm=w.mm,pr=clamp(w.prob/100,0,1),to=rad(norm(w.dir+180)),still=reduced();
-    const g=ctx.createLinearGradient(0,0,0,cv.height);g.addColorStop(0,"rgb("+n0(70-34*pr)+","+n0(130-60*pr)+","+n0(185-70*pr)+")");g.addColorStop(1,"rgb("+n0(34-12*pr)+","+n0(70-28*pr)+","+n0(100-30*pr)+")");
-    ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,cv.height);
-    if(pr<0.25&&mm<0.05){const sx=W*0.78*dpr,sy=44*dpr;ctx.fillStyle="#FFD54A";ctx.beginPath();ctx.arc(sx,sy,16*dpr,0,7);ctx.fill();ctx.strokeStyle="#FFD54A";ctx.lineWidth=2.5*dpr;ctx.lineCap="round";
-      for(let i=0;i<8;i++){const a=i*Math.PI/4+(still?0:ts/4000);ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*23*dpr,sy+Math.sin(a)*23*dpr);ctx.lineTo(sx+Math.cos(a)*32*dpr,sy+Math.sin(a)*32*dpr);ctx.stroke()}}
-    else{cloud(W*0.12,36,1.0,0.35+0.6*pr);cloud(W*0.5,28,1.2,0.3+0.65*pr);cloud(W*0.8,44,0.8,0.25+0.55*pr)}
-    const n=mm<0.02?0:clamp(Math.round(14+mm*55),14,170);while(drops.length<n)drops.push({x:Math.random()*cv.width,y:Math.random()*cv.height});drops.length=n;
-    const len=(8+Math.min(mm,3)*5)*dpr,vy=(5+Math.min(mm,3)*2.5)*dpr*(still?0:1),vx=comp()?0:Math.sin(to)*Math.min(w.spd,40)*0.09*dpr*(still?0:1);
-    ctx.strokeStyle="rgba(176,218,255,.88)";ctx.lineWidth=1.6*dpr;ctx.lineCap="round";
-    drops.forEach(d=>{d.x+=vx;d.y+=vy;if(d.y>cv.height){d.y=-len;d.x=Math.random()*cv.width}if(d.x<-20)d.x=cv.width+20;if(d.x>cv.width+20)d.x=-20;
-      ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x-vx*1.8,d.y-len);ctx.stroke()});
+let RGID=0;
+function makeRain(box){try{buildRain(box)}catch(e){mapFail(box,e)}}
+function buildRain(box){
+  const old=box.querySelector("canvas");if(old)old.remove();const prev=box.querySelector("svg.mv");if(prev)prev.remove();
+  const W=Math.max(260,box.clientWidth||320),H=130;
+  box.insertAdjacentHTML("afterbegin",'<svg class="mv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Rain graphic for the selected time" preserveAspectRatio="xMidYMid slice"></svg>');
+  const svg=box.querySelector("svg.mv"),gid="rg"+(++RGID),rr=rng(hash("rain"));
+  const base=[];for(let i=0;i<120;i++)base.push([rr(),rr(),rr()]);
+  const cloud=(x,y,s,a)=>[[0,0,22],[22,-8,26],[48,0,20],[24,8,26]].map(p=>'<circle cx="'+f1(x+p[0]*s)+'" cy="'+f1(y+p[1]*s)+'" r="'+f1(p[2]*s)+'" fill="rgba(214,228,238,'+a.toFixed(2)+')"/>').join("");
+  function update(){
+    const w=wx(MT),mm=w.mm,pr=clamp(w.prob/100,0,1),to=rad(norm(w.dir+180));
+    let g='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb('+n0(70-34*pr)+','+n0(130-60*pr)+','+n0(185-70*pr)+')"/><stop offset="1" stop-color="rgb('+n0(34-12*pr)+','+n0(70-28*pr)+','+n0(100-30*pr)+')"/></linearGradient></defs><rect width="'+W+'" height="'+H+'" fill="url(#'+gid+')"/>';
+    if(pr<0.25&&mm<0.05){const sx=W*0.78,sy=44;g+='<circle cx="'+f1(sx)+'" cy="'+sy+'" r="16" fill="#FFD54A"/><g class="rays" style="transform-origin:'+f1(sx)+'px '+sy+'px">';
+      for(let i=0;i<8;i++){const a=i*Math.PI/4;g+='<line x1="'+f1(sx+Math.cos(a)*23)+'" y1="'+f1(sy+Math.sin(a)*23)+'" x2="'+f1(sx+Math.cos(a)*32)+'" y2="'+f1(sy+Math.sin(a)*32)+'" stroke="#FFD54A" stroke-width="2.5" stroke-linecap="round"/>'}g+='</g>'}
+    else g+=cloud(W*0.12,36,1.0,0.35+0.6*pr)+cloud(W*0.5,28,1.2,0.3+0.65*pr)+cloud(W*0.8,44,0.8,0.25+0.55*pr);
+    const n=mm<0.02?0:clamp(Math.round(14+mm*55),14,120),len=8+Math.min(mm,3)*5,T=clamp(0.9-Math.min(mm,3)*0.12,0.5,0.9),rx=comp()?0:clamp(Math.sin(to)*Math.min(w.spd,40)*1.4,-70,70);
+    for(let i=0;i<n;i++){const b=base[i],x=b[0]*(W+80)-40;
+      g+='<line class="d" x1="'+f1(x)+'" y1="0" x2="'+f1(x-rx*0.12)+'" y2="'+f1(-len)+'" stroke="rgba(176,218,255,.88)" stroke-width="1.6" stroke-linecap="round" style="--rx:'+f1(rx)+'px;--sy:'+f1(b[1]*H)+'px;animation-duration:'+T.toFixed(2)+'s;animation-delay:'+(-b[2]*T).toFixed(2)+'s"/>'}
+    svg.innerHTML=g;
   }
-  addMap(cv,{draw});
+  MAPS.set(svg,{update});update();
 }
 function rainBars(R){
   let h="";for(let k=Math.floor(R.tee);k<Math.ceil(R.end);k++){const w=wx(k+0.5),now=MT>=k&&MT<k+1;
@@ -654,6 +674,7 @@ function fbText(){
   if(S.fbDiag!==false){
     t+="\n--- Diagnostics ---\nCourse: "+c.n+", "+c.place+" ("+c.id+")\nDate and tee: "+S.date+" "+S.tee+", group of "+S.group+"\nForecast: "+(liveHours()?"live (Open-Meteo)":"demo")+(wl?" ["+wl.status+"]":"")+"\nLayout: "+(L.src==="real"?"real (OpenStreetMap)":"illustrative")+(r?" ["+r.status+(r.why?": "+r.why:"")+"]":"")+", "+L.holes.length+" holes\n";
     if(S.fbHole!==null&&S.fbHole!==undefined)t+="Hole: "+(S.fbHole+1)+"\n";
+    t+="Map renderer: SVG"+(DBG.length?"\nRecent errors: "+DBG.slice(-3).join(" | "):"")+"\n";
     t+="Competition mode: "+(comp()?"on":"off")+"\nShot shape and flight: "+S.shape+", "+S.flight+"\nUnits: "+S.u.t+", "+S.u.w+", "+S.u.d+"\nClubs in bag: "+S.bag.length+"\nPage: "+route()+"\nDevice: "+(navigator.userAgent||"unknown")+"\n";
   }
   return t;
@@ -941,7 +962,7 @@ function render(keepScroll){
   const cm=comp();document.getElementById("hin").innerHTML=`<a class="logo" href="#home" aria-label="Windward home">${LOGO}Windward</a><div style="display:flex;gap:8px;align-items:center"><button class="cpill${cm?" on":""}" data-act="comp" aria-pressed="${cm}">Competition ${cm?(S.comp?"on":"auto"):"off"}</button>${r==="home"?`<a class="iconbtn" href="#settings" aria-label="Settings">${ico("gear")}</a>`:`<a class="iconbtn" href="#home" aria-label="Home">${ico("wind")}</a>`}</div>`;
   document.title=r==="home"?"Windward: pre-round conditions for golfers":"Windward · "+r;
   loadLive(course());if(["home","course","holes","clubs"].includes(r))loadReal(course());
-  initMapsForRoute();
+  try{initMapsForRoute()}catch(e){dbg(e)}
   window.scrollTo(0,keepScroll?y:0);
 }
 /* ---------- events ---------- */
@@ -996,7 +1017,7 @@ document.addEventListener("input",e=>{
 document.addEventListener("toggle",e=>{
   const d=e.target;if(!d||!d.matches||!d.matches("details[data-hole]"))return;
   if(d.open){document.querySelectorAll("details[data-hole][open]").forEach(o=>{if(o!==d)o.open=false});initOpenHole(d)}
-  else{const cv=d.querySelector("canvas");if(cv)MAPS.delete(cv)}
+  else{const cv=d.querySelector("svg.mv");if(cv)MAPS.delete(cv)}
 },true);
 document.addEventListener("change",e=>{
   const t=e.target,k=t.dataset&&t.dataset.bind;if(!k)return;const v=t.dataset.v;

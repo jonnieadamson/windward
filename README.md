@@ -82,3 +82,14 @@ Items without a `src` are never shown. Courses with no entry show "Not verified 
 ## 8. Notes on the review quotes
 
 Quotes are under 15 words each, one per review page, attributed and linked. The titles for some pages were taken from their web addresses, so check them against the live pages before publishing. Seek permission or legal advice before using review text in a released app.
+
+## 9. If a map doesn't appear
+
+The maps are now drawn as vector graphics (SVG) rather than on a canvas, so they work in every browser and WebView. If something still goes wrong the app says so instead of showing a blank box.
+
+- **Badge above the hole map** shows the state of the real course data: "Real course layout" (working), "Loading real course layout…", or "Illustrative layout. Real course data unavailable (reason)". Typical reasons: "Failed to fetch" (no internet or the browser blocked the request), "HTTP 429" (the free map server is busy; wait a minute and reload), "Too few holes are mapped for this course" (OpenStreetMap has little data for it).
+- **"This map couldn't be drawn"** with a reason and a **Report this** button means a drawing error. Tap the button; the feedback page includes the error text in its diagnostics.
+- **Forecast badge** shows "Live forecast", "Loading live forecast…" or "Demo forecast".
+- Real course shapes need internet and a normal web address (https). They will not load in the Claude preview page, which blocks outside requests; the preview shows the illustrative layout.
+- The app reloads from a cache. After updating files, close and reopen the app (or clear the site's data in Chrome) to be sure you have the new version.
+- To see errors on an Android phone: connect it by USB, turn on USB debugging, and open chrome://inspect on a computer.
